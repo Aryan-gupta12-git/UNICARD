@@ -88,9 +88,9 @@ export const Home: React.FC<HomeProps> = ({
         {/* Top Welcome Header */}
         <header className="home-header">
           <h1 className="home-title">Welcome back, {firstName}.</h1>
-          <p className="home-subheading">
-            {userCards.length > 0 ? "Manage your UNICARD digital identity" : "Let's make your first card"}
-          </p>
+          {userCards.length === 0 && (
+            <p className="home-subheading">Let's make your first card</p>
+          )}
           <div className="home-action-wrapper">
             <button className="btn btn-primary" onClick={onCreateCard}>
               {userCards.length > 0 ? "Create more" : "Create"}
