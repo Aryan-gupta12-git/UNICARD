@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
-import { Download, Share2, Check, ExternalLink, ArrowLeft, Eye } from 'lucide-react';
+import { Download, Share2, Check, ExternalLink, ArrowLeft, Eye, Edit } from 'lucide-react';
 import './ViewCard.css';
 
 interface ViewCardProps {
@@ -8,13 +8,15 @@ interface ViewCardProps {
   slug?: string;
   onBackToHome?: () => void;
   onPreviewCard?: (slug: string) => void;
+  onEditCard?: () => void;
 }
 
 export const ViewCard: React.FC<ViewCardProps> = ({
   profile: initialProfile = null,
   slug: initialSlug = '',
   onBackToHome,
-  onPreviewCard
+  onPreviewCard,
+  onEditCard
 }) => {
   const [profileData, setProfileData] = useState<any | null>(initialProfile);
   const [copied, setCopied] = useState<boolean>(false);
@@ -201,6 +203,17 @@ export const ViewCard: React.FC<ViewCardProps> = ({
                 <Eye size={15} />
                 <span>Preview</span>
               </button>
+
+              {onEditCard && (
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={onEditCard}
+                >
+                  <Edit size={15} />
+                  <span>Edit</span>
+                </button>
+              )}
             </div>
           </div>
 

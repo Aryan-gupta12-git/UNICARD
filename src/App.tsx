@@ -271,6 +271,10 @@ const MainAppContent: React.FC = () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             setView('public-card');
           }}
+          onEditCard={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setView('onboarding');
+          }}
         />
       )}
 
