@@ -4,8 +4,16 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../db.js';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'unicard_editorial_jwt_secret_key_2026_super_secure';
 const COOKIE_NAME = 'unicard_token';
+
+// Helper to get JWT_SECRET strictly from environment variable
+const getJwtSecret = () => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is missing.');
+  }
+  return secret;
+};
 
 // Helper to set HTTP-only auth cookie
 const setAuthCookie = (res, token) => {
@@ -28,7 +36,7 @@ router.post('/register', async (req, res) => {
     const { name, email, password, confirmPassword } = req.body;
 
     // Field validation
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !confirmPassword) {
       return res.status(400).json({ error: 'All fields are required.' });
     }
 
@@ -36,32 +44,32 @@ router.post('/register', async (req, res) => {
     const cleanEmail = String(email).toLowerCase().trim();
 
     if (!trimmedName) {
-      return res.status(400).json({ error: 'Full Name is required.' });
+      return res.status(400).json({ error: 'Full name is required.' });
     }
 
     if (!isValidEmail(cleanEmail)) {
       return res.status(400).json({ error: 'Please enter a valid email address.' });
     }
 
-    if (String(password).length < 8) {
+    if (password.length < 8) {
       return res.status(400).json({ error: 'Password must be at least 8 characters long.' });
     }
 
-    if (confirmPassword !== undefined && password !== confirmPassword) {
-      return res.status(400).json({ error: 'Password and Confirm Password do not match.' });
+    if (password !== confirmPassword) {
+      return res.status(400).json({ error: 'Passwords do not match.' });
     }
 
-    // Duplicate email protection
+    // Check existing User
     const existingUser = await prisma.user.findUnique({
       where: { email: cleanEmail }
     });
 
     if (existingUser) {
-      return res.status(409).json({ error: 'An account with this email address already exists.' });
+      return res.status(409).json({ error: 'An account with this email address already exists. Please sign in.' });
     }
 
-    // Password hashing
-    const passwordHash = await bcrypt.hash(password, 10);
+    // Hash password
+    const passwordHash = await bcrypt.hash(password, 12);
 
     // Create User record
     const user = await prisma.user.create({
@@ -73,7 +81,7 @@ router.post('/register', async (req, res) => {
     });
 
     // Sign JWT
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user.id }, getJwtSecret(), { expiresIn: '7d' });
 
     // Set secure HTTP-only cookie
     setAuthCookie(res, token);
@@ -120,7 +128,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Sign JWT
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user.id }, getJwtSecret(), { expiresIn: '7d' });
 
     // Set secure HTTP-only cookie
     setAuthCookie(res, token);
@@ -134,7 +142,7 @@ router.post('/login', async (req, res) => {
     });
   } catch (err) {
     console.error('Login error:', err);
-    return res.status(500).json({ error: 'Failed to sign in. Please try again.' });
+    return res.status(500).json({ error: err.message || 'Failed to sign in. Please try again.' });
   }
 });
 
@@ -159,8 +167,11 @@ router.get('/me', async (req, res) => {
 
     let decoded;
     try {
-      decoded = jwt.verify(token, JWT_SECRET);
-    } catch {
+      decoded = jwt.verify(token, getJwtSecret());
+    } catch (err) {
+      if (err.message.includes('JWT_SECRET')) {
+        return res.status(500).json({ error: err.message });
+      }
       res.clearCookie(COOKIE_NAME);
       return res.status(401).json({ error: 'Session expired' });
     }
@@ -183,7 +194,7 @@ router.get('/me', async (req, res) => {
     });
   } catch (err) {
     console.error('Me endpoint error:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: err.message || 'Internal server error' });
   }
 });
 

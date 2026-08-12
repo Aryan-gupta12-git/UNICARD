@@ -85,15 +85,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   };
 
-  const handleViewProfileClick = () => {
-    if (isTypewriterActive) return;
-    setDropdownOpen(false);
-    setMobileMenuOpen(false);
-    if (onViewProfile) {
-      onViewProfile();
-    }
-  };
-
   const handleSignOutClick = async () => {
     if (isTypewriterActive) return;
     setDropdownOpen(false);
@@ -169,7 +160,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                     className="profile-dropdown-item"
                     disabled={true}
                     style={{ opacity: 0.5, cursor: 'not-allowed', pointerEvents: 'none' }}
-                    onClick={(e) => e.preventDefault()}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (onViewProfile) onViewProfile();
+                    }}
                   >
                     <User size={15} />
                     View Profile
@@ -228,14 +222,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 Analytics
               </a>
-              <button className="btn btn-secondary mobile-cta" onClick={handleViewProfileClick}>
-                <User size={15} />
-                View Profile ({user?.name})
-              </button>
-              <button className="btn btn-secondary mobile-cta" onClick={handleSignOutClick} style={{ color: '#dc2626' }}>
-                <LogOut size={15} />
-                Log out
-              </button>
             </>
           ) : isAuthActive ? (
             <button className="btn btn-secondary mobile-cta" onClick={handleLogin}>

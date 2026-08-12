@@ -3,8 +3,16 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../db.js';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'unicard_editorial_jwt_secret_key_2026_super_secure';
 const COOKIE_NAME = 'unicard_token';
+
+// Helper to get JWT_SECRET strictly from environment variable
+const getJwtSecret = () => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is missing.');
+  }
+  return secret;
+};
 
 // Auth middleware
 const requireAuth = async (req, res, next) => {
@@ -16,8 +24,11 @@ const requireAuth = async (req, res, next) => {
 
     let decoded;
     try {
-      decoded = jwt.verify(token, JWT_SECRET);
-    } catch {
+      decoded = jwt.verify(token, getJwtSecret());
+    } catch (err) {
+      if (err.message.includes('JWT_SECRET')) {
+        return res.status(500).json({ error: err.message });
+      }
       return res.status(401).json({ error: 'Session expired. Please log in again.' });
     }
 
@@ -33,7 +44,7 @@ const requireAuth = async (req, res, next) => {
     next();
   } catch (err) {
     console.error('Auth middleware error:', err);
-    return res.status(500).json({ error: 'Internal authentication error.' });
+    return res.status(500).json({ error: err.message || 'Internal authentication error.' });
   }
 };
 

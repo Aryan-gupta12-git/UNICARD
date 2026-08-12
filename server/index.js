@@ -24,7 +24,7 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'production') {
+    if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'production' || process.env.VERCEL) {
       callback(null, true);
     } else {
       callback(null, true);
@@ -46,8 +46,8 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', service: 'UNICARD API' });
 });
 
-// Serve static React build in production
-if (process.env.NODE_ENV === 'production') {
+// Serve static React build in production standalone server
+if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
   const distPath = path.join(__dirname, '../dist');
   app.use(express.static(distPath));
   app.get('*', (req, res) => {
@@ -55,6 +55,11 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`UNICARD API Server listening on port ${PORT}`);
-});
+// Start listener only when running standalone server (not on Vercel serverless)
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`UNICARD API Server listening on port ${PORT}`);
+  });
+}
+
+export default app;
