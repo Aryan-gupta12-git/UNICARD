@@ -195,11 +195,6 @@ export const Onboarding: React.FC<OnboardingProps> = ({
     }
   };
 
-  const handleEditDetails = () => {
-    setCurrentStep(1);
-    if (onClose) handleClose();
-  };
-
   return (
     <div className="onboarding-page">
       <main className="onboarding-main">
@@ -283,17 +278,11 @@ export const Onboarding: React.FC<OnboardingProps> = ({
               <CompletionView
                 data={formData}
                 slug={generatedSlug}
-                onViewCard={(slug) => {
-                  if (onViewCard) {
-                    onViewCard(slug);
-                  } else if (onClose) {
-                    onClose();
-                  }
-                }}
-                onEditDetails={handleEditDetails}
-                onGoHome={() => {
+                onMyCardsClick={() => {
                   if (onCompleteSuccess) {
                     onCompleteSuccess();
+                  } else if (onViewCard) {
+                    onViewCard(generatedSlug);
                   } else if (onClose) {
                     onClose();
                   }

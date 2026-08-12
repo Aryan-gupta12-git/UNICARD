@@ -3,34 +3,19 @@ import type { OnboardingData } from './types';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 interface CompletionViewProps {
-  data: OnboardingData;
+  data?: OnboardingData;
   slug?: string;
-  onViewCard: (slug: string) => void;
-  onEditDetails?: () => void;
-  onGoHome?: () => void;
+  onMyCardsClick: () => void;
 }
 
 export const CompletionView: React.FC<CompletionViewProps> = ({
-  data,
-  slug = '',
-  onViewCard,
-  onGoHome
+  onMyCardsClick
 }) => {
-  const generatedSlug = slug || data.name.toLowerCase().trim().replace(/[^a-z0-9]/g, '-') || 'user';
-
-  const handleViewCardClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    if (onViewCard) {
-      onViewCard(generatedSlug);
-    }
-  };
-
-  const handleBackToHomeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (onGoHome) {
-      onGoHome();
+    if (onMyCardsClick) {
+      onMyCardsClick();
     }
   };
 
@@ -54,13 +39,12 @@ export const CompletionView: React.FC<CompletionViewProps> = ({
         Card Created <span style={{ color: '#16a34a' }}>Successfully</span>
       </h2>
 
-      {/* 3. Action Buttons below heading */}
+      {/* 3. Single "My Cards" Action Button */}
       <div
-        className="completion-actions-dual"
+        className="completion-actions-single"
         style={{
           display: 'flex',
           justifyContent: 'center',
-          gap: '16px',
           position: 'relative',
           zIndex: 20,
           pointerEvents: 'auto'
@@ -69,18 +53,10 @@ export const CompletionView: React.FC<CompletionViewProps> = ({
         <button
           type="button"
           className="btn btn-primary"
-          onClick={handleViewCardClick}
-          style={{ cursor: 'pointer', zIndex: 30, pointerEvents: 'auto' }}
+          onClick={handleClick}
+          style={{ cursor: 'pointer', zIndex: 30, pointerEvents: 'auto', minWidth: '160px' }}
         >
-          View Card
-        </button>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={handleBackToHomeClick}
-          style={{ cursor: 'pointer', zIndex: 30, pointerEvents: 'auto' }}
-        >
-          Back to Home
+          My Cards
         </button>
       </div>
     </div>

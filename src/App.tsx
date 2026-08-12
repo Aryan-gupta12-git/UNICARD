@@ -370,10 +370,13 @@ const MainAppContent: React.FC = () => {
       {view === 'onboarding' && (
         <Onboarding
           editingCardId={editingCardId}
-          onViewCard={(slug) => handleViewCard(slug, 'my-cards', false)}
+          onViewCard={async () => {
+            await handleRefreshProfile();
+            setView('my-cards');
+          }}
           onCompleteSuccess={async () => {
             await handleRefreshProfile();
-            setView('home');
+            setView('my-cards');
           }}
           onClose={async () => {
             await handleRefreshProfile();
