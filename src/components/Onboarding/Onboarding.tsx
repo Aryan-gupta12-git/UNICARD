@@ -11,6 +11,8 @@ interface OnboardingProps {
   onClose?: () => void;
   onViewCard?: (slug: string) => void;
   onCompleteSuccess?: () => void;
+  editingCardId?: string | null;
+  initialCardData?: any | null;
 }
 
 const initialData: OnboardingData = {
@@ -19,6 +21,7 @@ const initialData: OnboardingData = {
   phone: '',
   bio: '',
   usageType: null,
+  theme: 'comic-theme',
   business: {
     name: '',
     designation: '',
@@ -33,13 +36,79 @@ const initialData: OnboardingData = {
   socials: []
 };
 
-export const Onboarding: React.FC<OnboardingProps> = ({ onClose, onViewCard, onCompleteSuccess }) => {
+export const Onboarding: React.FC<OnboardingProps> = ({
+  onClose,
+  onViewCard,
+  onCompleteSuccess,
+  editingCardId = null,
+  initialCardData = null
+}) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [formData, setFormData] = useState<OnboardingData>(initialData);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [generatedSlug, setGeneratedSlug] = useState<string>('');
-  const isEditingProfile = false;
+
+  const activeCardId = editingCardId || initialCardData?.id || null;
+  const isEditing = Boolean(activeCardId);
+
+  // Populate form with existing card data when editing
+  useEffect(() => {
+    const fetchCardForEditing = async () => {
+      if (initialCardData) {
+        populateForm(initialCardData);
+        return;
+      }
+
+      if (editingCardId) {
+        try {
+          const res = await fetch(`/api/unicard/cards/${editingCardId}`, { credentials: 'include' });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.card || data.profile) {
+              populateForm(data.card || data.profile);
+            }
+          }
+        } catch (err) {
+          console.error('Failed to load card for editing:', err);
+        }
+      }
+    };
+
+    fetchCardForEditing();
+  }, [editingCardId, initialCardData]);
+
+  const populateForm = (card: any) => {
+    const usageType = card.usageType
+      ? (String(card.usageType).toLowerCase() as 'personal' | 'business')
+      : 'personal';
+
+    setFormData({
+      name: card.name || '',
+      email: card.email || '',
+      phone: card.phone || '',
+      bio: card.bio || '',
+      usageType,
+      theme: card.theme || 'comic-theme',
+      business: {
+        name: card.businessName || '',
+        designation: card.designation || '',
+        address: card.businessAddress || '',
+        category: card.businessCategory || ''
+      },
+      presence: {
+        offline: Boolean(card.offlinePresence),
+        online: Boolean(card.onlinePresence)
+      },
+      website: card.website || '',
+      socials: Array.isArray(card.socials)
+        ? card.socials.map((s: { platform: string; url: string }) => ({
+            platform: s.platform,
+            url: s.url
+          }))
+        : []
+    });
+  };
 
   const handleClose = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -86,6 +155,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onClose, onViewCard, onC
       email: formData.email,
       phone: formData.phone,
       bio: formData.bio,
+      theme: formData.theme || 'comic-theme',
       usageType: formData.usageType,
       business: formData.business,
       presence: formData.presence,
@@ -93,11 +163,12 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onClose, onViewCard, onC
       socials: formData.socials
     };
 
-    console.log("UNICARD payload:", payload);
+    const targetUrl = isEditing ? `/api/unicard/cards/${activeCardId}` : '/api/unicard';
+    const httpMethod = isEditing ? 'PUT' : 'POST';
 
     try {
-      const response = await fetch('/api/unicard', {
-        method: 'POST',
+      const response = await fetch(targetUrl, {
+        method: httpMethod,
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(payload)
@@ -106,15 +177,15 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onClose, onViewCard, onC
       const res = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        setSubmitError(res.error || 'Failed to save UNICARD profile. Please try again.');
+        setSubmitError(res.error || 'Failed to save UNICARD. Please try again.');
         setIsSubmitting(false);
         return;
       }
 
-      setGeneratedSlug(res.slug);
+      setGeneratedSlug(res.slug || res.card?.slug || res.profile?.slug);
       setIsSubmitting(false);
 
-      // Only after successful database creation transition to Step 5 (Tick animation + ready screen)
+      // Transition to CompletionView on successful save
       setCurrentStep(5);
     } catch (err) {
       console.error('Submit UNICARD error:', err);
@@ -134,9 +205,11 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onClose, onViewCard, onC
         <div className="container onboarding-container">
           {currentStep <= 4 && (
             <div className="onboarding-header">
-              <h1 className="onboarding-title">Let’s build your card.</h1>
+              <h1 className="onboarding-title">
+                {isEditing ? 'Edit your card.' : 'Let’s build your card.'}
+              </h1>
               <p className="onboarding-subtitle">
-                Tell us a little about yourself. You can change these details later.
+                {isEditing ? 'Update your information below.' : 'Tell us a little about yourself. You can change these details later.'}
               </p>
 
               {/* Minimal Progress Indicator */}
@@ -201,7 +274,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onClose, onViewCard, onC
                 onBack={handlePrevStep}
                 isSubmitting={isSubmitting}
                 submitError={submitError}
-                isEditing={isEditingProfile}
+                isEditing={isEditing}
               />
             )}
 

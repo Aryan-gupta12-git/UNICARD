@@ -30,6 +30,7 @@ type AppView =
 const MainAppContent: React.FC = () => {
   const [view, setView] = useState<AppView>('landing');
   const [publicSlug, setPublicSlug] = useState<string>('');
+  const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<any | null>(null);
   const [isProfileChecking, setIsProfileChecking] = useState<boolean>(true);
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -46,6 +47,8 @@ const MainAppContent: React.FC = () => {
             const data = await res.json();
             if (data.profile) {
               setUserProfile(data.profile);
+            } else if (Array.isArray(data.cards) && data.cards.length > 0) {
+              setUserProfile(data.cards[0]);
             } else {
               setUserProfile(null);
             }
@@ -125,13 +128,27 @@ const MainAppContent: React.FC = () => {
     setView('view-card');
   };
 
+  const handleCreateNewCard = () => {
+    setEditingCardId(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setView('onboarding');
+  };
+
+  const handleEditCard = (cardIdOrSlug?: string) => {
+    const targetId = cardIdOrSlug || publicSlug || userProfile?.id;
+    setEditingCardId(targetId || null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setView('onboarding');
+  };
+
   const handleRefreshProfile = async () => {
     try {
       const res = await fetch('/api/unicard/me', { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
-        setUserProfile(data.profile || null);
-        return data.profile;
+        const active = data.profile || (Array.isArray(data.cards) ? data.cards[0] : null);
+        setUserProfile(active || null);
+        return active;
       }
     } catch (err) {
       console.error('Failed to refresh profile:', err);
@@ -168,7 +185,7 @@ const MainAppContent: React.FC = () => {
           if (userProfile?.slug) {
             handleViewPublicCard(userProfile.slug);
           } else {
-            setView('onboarding');
+            handleCreateNewCard();
           }
         }}
         activeView={view}
@@ -216,6 +233,7 @@ const MainAppContent: React.FC = () => {
 
       {view === 'onboarding' && (
         <Onboarding
+          editingCardId={editingCardId}
           onClose={() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             setView(isAuthenticated ? 'home' : 'landing');
@@ -233,9 +251,7 @@ const MainAppContent: React.FC = () => {
         <Home
           userName={user?.name}
           profile={userProfile}
-          onViewCard={handleViewPublicCard}
-          onEditDetails={() => setView('onboarding')}
-          onCreateCard={() => setView('onboarding')}
+          onCreateCard={handleCreateNewCard}
           onNavigate={(targetView) => setView(targetView)}
         />
       )}
@@ -243,7 +259,7 @@ const MainAppContent: React.FC = () => {
       {view === 'saved-cards' && (
         <SavedCards
           onViewCard={handleViewPublicCard}
-          onCreateCard={() => setView('onboarding')}
+          onCreateCard={handleCreateNewCard}
         />
       )}
 
@@ -271,10 +287,7 @@ const MainAppContent: React.FC = () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             setView('public-card');
           }}
-          onEditCard={() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            setView('onboarding');
-          }}
+          onEditCard={() => handleEditCard()}
         />
       )}
 

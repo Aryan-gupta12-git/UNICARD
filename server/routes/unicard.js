@@ -108,7 +108,7 @@ const normalizeUrl = (urlStr) => {
     : `https://${trimmed}`;
 };
 
-// POST /api/unicard - Create or update UniCard Profile
+// POST /api/unicard or /api/cards - Create NEW UniCard Profile
 router.post('/', requireAuth, async (req, res) => {
   try {
     const {
@@ -194,130 +194,222 @@ router.post('/', requireAuth, async (req, res) => {
       }
     }
 
-    // Check existing profile for this user
-    const existingProfile = await prisma.uniCardProfile.findUnique({
-      where: { userId: req.user.id },
+    const slug = await getUniqueSlug(cleanName);
+
+    // Create NEW card in database
+    const card = await prisma.uniCardProfile.create({
+      data: {
+        userId: req.user.id,
+        slug,
+        name: cleanName,
+        email: cleanEmail,
+        phone: cleanPhone,
+        bio: bio ? String(bio).trim() : null,
+        theme: cleanTheme,
+        profileImageUrl: profileImageUrl ? String(profileImageUrl).trim() : null,
+        usageType: normalizedUsageType,
+        businessName,
+        designation,
+        businessAddress,
+        businessCategory,
+        offlinePresence,
+        onlinePresence,
+        website: cleanWebsite,
+        socials: {
+          create: validSocials
+        }
+      },
       include: { socials: true }
-    });
-
-    let slug;
-    if (existingProfile) {
-      slug = existingProfile.slug;
-    } else {
-      slug = await getUniqueSlug(cleanName);
-    }
-
-    // Upsert transaction to handle profile and social links cleanly
-    const result = await prisma.$transaction(async (tx) => {
-      let profile;
-
-      if (existingProfile) {
-        // Delete old social links
-        await tx.socialLink.deleteMany({
-          where: { profileId: existingProfile.id }
-        });
-
-        // Update profile
-        profile = await tx.uniCardProfile.update({
-          where: { id: existingProfile.id },
-          data: {
-            name: cleanName,
-            email: cleanEmail,
-            phone: cleanPhone,
-            bio: bio ? String(bio).trim() : null,
-            theme: cleanTheme,
-            profileImageUrl: profileImageUrl ? String(profileImageUrl).trim() : null,
-            usageType: normalizedUsageType,
-            businessName,
-            designation,
-            businessAddress,
-            businessCategory,
-            offlinePresence,
-            onlinePresence,
-            website: cleanWebsite,
-            socials: {
-              create: validSocials
-            }
-          },
-          include: { socials: true }
-        });
-      } else {
-        // Create new profile
-        profile = await tx.uniCardProfile.create({
-          data: {
-            userId: req.user.id,
-            slug,
-            name: cleanName,
-            email: cleanEmail,
-            phone: cleanPhone,
-            bio: bio ? String(bio).trim() : null,
-            theme: cleanTheme,
-            profileImageUrl: profileImageUrl ? String(profileImageUrl).trim() : null,
-            usageType: normalizedUsageType,
-            businessName,
-            designation,
-            businessAddress,
-            businessCategory,
-            offlinePresence,
-            onlinePresence,
-            website: cleanWebsite,
-            socials: {
-              create: validSocials
-            }
-          },
-          include: { socials: true }
-        });
-      }
-
-      return profile;
     });
 
     return res.status(201).json({
-      profile: result,
-      slug: result.slug,
-      url: `/u/${result.slug}`
+      card,
+      profile: card,
+      slug: card.slug,
+      url: `/u/${card.slug}`
     });
   } catch (err) {
-    console.error('Error saving UNICARD profile details:', err);
-    return res.status(500).json({ error: err.message || 'Failed to save UNICARD profile. Please try again.' });
+    console.error('Error creating UNICARD:', err);
+    return res.status(500).json({ error: err.message || 'Failed to create UNICARD. Please try again.' });
   }
 });
 
-// GET /api/unicard/me - Get current logged in user's UNICARD cards/profile
+// PUT /api/unicard/cards/:id or /api/cards/:id - Edit SPECIFIC card with ownership validation
+router.put('/cards/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const existingCard = await prisma.uniCardProfile.findFirst({
+      where: {
+        OR: [
+          { id: String(id) },
+          { slug: String(id).toLowerCase().trim() }
+        ]
+      }
+    });
+
+    if (!existingCard) {
+      return res.status(404).json({ error: 'Card not found.' });
+    }
+
+    if (existingCard.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Forbidden: You do not own this card.' });
+    }
+
+    const {
+      name,
+      email,
+      phone,
+      bio,
+      theme,
+      usageType,
+      business,
+      presence,
+      website,
+      socials,
+      profileImageUrl
+    } = req.body;
+
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required.' });
+    }
+
+    const cleanName = String(name).trim();
+    const cleanEmail = String(email).toLowerCase().trim();
+    const cleanPhone = String(phone || '').trim();
+    const cleanTheme = theme ? String(theme).trim() : (existingCard.theme || 'comic-theme');
+    const normalizedUsageType = usageType ? String(usageType).toUpperCase() : 'PERSONAL';
+
+    if (!isValidEmail(cleanEmail)) {
+      return res.status(400).json({ error: 'Please enter a valid email address.' });
+    }
+
+    let businessName = null;
+    let designation = null;
+    let businessAddress = null;
+    let businessCategory = null;
+
+    if (normalizedUsageType === 'BUSINESS') {
+      businessName = business?.name ? String(business.name).trim() : null;
+      designation = business?.designation ? String(business.designation).trim() : null;
+      businessAddress = business?.address ? String(business.address).trim() : null;
+      businessCategory = business?.category ? String(business.category).trim() : null;
+
+      if (!businessName || !designation) {
+        return res.status(400).json({ error: 'Company Name and Title/Designation are required for business cards.' });
+      }
+    }
+
+    const offlinePresence = Boolean(presence?.offline);
+    const onlinePresence = Boolean(presence?.online);
+
+    let cleanWebsite = null;
+    if (website && String(website).trim()) {
+      if (!isValidUrl(website)) {
+        return res.status(400).json({ error: 'Please enter a valid website URL' });
+      }
+      cleanWebsite = normalizeUrl(website);
+    }
+
+    const validSocials = [];
+    if (Array.isArray(socials)) {
+      for (const s of socials) {
+        if (s && s.platform && s.url && String(s.url).trim()) {
+          if (!isValidUrl(s.url)) {
+            return res.status(400).json({ error: `Please enter a valid URL for ${s.platform}` });
+          }
+          validSocials.push({
+            platform: String(s.platform).toLowerCase().trim(),
+            url: normalizeUrl(s.url)
+          });
+        }
+      }
+    }
+
+    let slug = existingCard.slug;
+    if (cleanName.toLowerCase() !== existingCard.name.toLowerCase()) {
+      slug = await getUniqueSlug(cleanName, existingCard.id);
+    }
+
+    const updatedCard = await prisma.$transaction(async (tx) => {
+      await tx.socialLink.deleteMany({
+        where: { profileId: existingCard.id }
+      });
+
+      return await tx.uniCardProfile.update({
+        where: { id: existingCard.id },
+        data: {
+          slug,
+          name: cleanName,
+          email: cleanEmail,
+          phone: cleanPhone,
+          bio: bio ? String(bio).trim() : null,
+          theme: cleanTheme,
+          profileImageUrl: profileImageUrl ? String(profileImageUrl).trim() : null,
+          usageType: normalizedUsageType,
+          businessName,
+          designation,
+          businessAddress,
+          businessCategory,
+          offlinePresence,
+          onlinePresence,
+          website: cleanWebsite,
+          socials: {
+            create: validSocials
+          }
+        },
+        include: { socials: true }
+      });
+    });
+
+    return res.json({
+      card: updatedCard,
+      profile: updatedCard,
+      slug: updatedCard.slug,
+      url: `/u/${updatedCard.slug}`
+    });
+  } catch (err) {
+    console.error('Error updating UNICARD:', err);
+    return res.status(500).json({ error: err.message || 'Failed to update card.' });
+  }
+});
+
+// GET /api/unicard/me or /api/cards - Get ALL cards belonging to current user
 router.get('/me', requireAuth, async (req, res) => {
   try {
-    const profile = await prisma.uniCardProfile.findUnique({
+    const cards = await prisma.uniCardProfile.findMany({
       where: { userId: req.user.id },
-      include: { socials: true }
+      include: { socials: true },
+      orderBy: { createdAt: 'desc' }
     });
 
-    return res.json({ profile, cards: profile ? [profile] : [] });
-  } catch (err) {
-    console.error('Error fetching user profile:', err);
-    return res.status(500).json({ error: 'Failed to load profile.' });
-  }
-});
-
-// GET /api/unicard/cards - Authenticated cards endpoint alias
-router.get('/cards', requireAuth, async (req, res) => {
-  try {
-    const profile = await prisma.uniCardProfile.findUnique({
-      where: { userId: req.user.id },
-      include: { socials: true }
-    });
-
-    return res.json({ cards: profile ? [profile] : [] });
+    return res.json({ cards, profile: cards[0] || null });
   } catch (err) {
     console.error('Error fetching user cards:', err);
     return res.status(500).json({ error: 'Failed to load user cards.' });
   }
 });
 
-// GET /api/unicard/cards/:id - Get specific card with ownership validation
+router.get('/cards', requireAuth, async (req, res) => {
+  try {
+    const cards = await prisma.uniCardProfile.findMany({
+      where: { userId: req.user.id },
+      include: { socials: true },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return res.json({ cards, profile: cards[0] || null });
+  } catch (err) {
+    console.error('Error fetching user cards:', err);
+    return res.status(500).json({ error: 'Failed to load user cards.' });
+  }
+});
+
+// GET /api/unicard/cards/:id or /api/cards/:id - Get specific card by ID with ownership check
 router.get('/cards/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    const profile = await prisma.uniCardProfile.findFirst({
+    const card = await prisma.uniCardProfile.findFirst({
       where: {
         OR: [
           { id: String(id) },
@@ -327,16 +419,15 @@ router.get('/cards/:id', requireAuth, async (req, res) => {
       include: { socials: true }
     });
 
-    if (!profile) {
+    if (!card) {
       return res.status(404).json({ error: 'Card not found.' });
     }
 
-    // Ownership check for protected private view
-    if (profile.userId !== req.user.id) {
+    if (card.userId !== req.user.id) {
       return res.status(403).json({ error: 'Forbidden: You do not own this card.' });
     }
 
-    return res.json({ card: profile, profile });
+    return res.json({ card, profile: card });
   } catch (err) {
     console.error('Error fetching card by ID:', err);
     return res.status(500).json({ error: 'Failed to fetch card.' });
@@ -357,7 +448,6 @@ router.get('/public/:slug', async (req, res) => {
       return res.status(404).json({ error: 'UNICARD profile not found.' });
     }
 
-    // Return safe public fields only
     return res.json({
       profile: {
         id: profile.id,

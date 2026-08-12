@@ -16,7 +16,7 @@ model User {
   passwordHash String
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
-  profile      UniCardProfile?
+  cards        UniCardProfile[]
 }
 
 enum UsageType {
@@ -26,7 +26,7 @@ enum UsageType {
 
 model UniCardProfile {
   id               String       @id @default(cuid())
-  userId           String       @unique
+  userId           String
   slug             String       @unique
   name             String
   email            String
