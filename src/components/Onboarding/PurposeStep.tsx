@@ -22,7 +22,7 @@ export const PurposeStep: React.FC<PurposeStepProps> = ({ data, updateData, onNe
     }
   };
 
-  const handleSelectTheme = (theme: 'comic-theme' | 'pink-pop-theme') => {
+  const handleSelectTheme = (theme: 'comic-theme' | 'pink-pop-theme' | 'spider-comic-theme') => {
     updateData({ theme });
   };
 
@@ -155,6 +155,21 @@ export const PurposeStep: React.FC<PurposeStepProps> = ({ data, updateData, onNe
                 </div>
                 <p className="option-description">
                   Vibrant pink pop-comic style with gradient title text.
+                </p>
+              </div>
+
+              <div
+                className={`option-card ${selectedTheme === 'spider-comic-theme' ? 'is-selected' : ''}`}
+                onClick={() => handleSelectTheme('spider-comic-theme')}
+              >
+                <div className="option-card-header">
+                  <span className="option-title">Spider Comic</span>
+                  <div className="option-radio">
+                    {selectedTheme === 'spider-comic-theme' && <div className="option-radio-dot" />}
+                  </div>
+                </div>
+                <p className="option-description">
+                  Spider hero style with red & blue dual-tone title typography.
                 </p>
               </div>
             </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { renderSpiderComicName } from '../utils/themeHelpers';
 import './Home.css';
 
 interface HomeProps {
@@ -184,7 +185,9 @@ export const Home: React.FC<HomeProps> = ({
                     style={{ cursor: 'pointer', position: 'relative' }}
                   >
                     <div className="card-box-main">
-                      <h3 className="card-user-name">{card.name}</h3>
+                      <h3 className="card-user-name">
+                        {themeClass === 'spider-comic-theme' ? renderSpiderComicName(card.name) : card.name}
+                      </h3>
                     </div>
                     {(metaValue || !isPersonal) && (
                       <div className="card-meta-row">

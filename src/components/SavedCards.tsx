@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Loader2 } from 'lucide-react';
+import { renderSpiderComicName } from '../utils/themeHelpers';
 import './Home.css';
 
 interface SavedCardsProps {
@@ -154,7 +155,9 @@ export const SavedCards: React.FC<SavedCardsProps> = ({
                   )}
 
                   <div className="card-box-main">
-                    <h3 className="card-user-name">{card.name}</h3>
+                    <h3 className="card-user-name">
+                      {themeClass === 'spider-comic-theme' ? renderSpiderComicName(card.name) : card.name}
+                    </h3>
                   </div>
                   {(metaValue || !isPersonal) && (
                     <div className="card-meta-row">

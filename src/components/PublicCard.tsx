@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { UserPlus, Download, Check } from 'lucide-react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { renderSpiderComicName } from '../utils/themeHelpers';
 import './Auth/Auth.css';
 import './Home.css';
 
@@ -190,7 +191,9 @@ export const PublicCard: React.FC<PublicCardProps> = ({
         {/* Render Card Artwork in Original Theme */}
         <div className={`card-box ${themeClass}`} style={{ width: '100%', marginBottom: '28px', cursor: 'default' }}>
           <div className="card-box-main">
-            <h3 className="card-user-name">{profile.name}</h3>
+            <h3 className="card-user-name">
+              {themeClass === 'spider-comic-theme' ? renderSpiderComicName(profile.name) : profile.name}
+            </h3>
           </div>
           {(metaValue || !isPersonal) && (
             <div className="card-meta-row">
