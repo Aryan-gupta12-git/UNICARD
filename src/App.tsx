@@ -31,6 +31,7 @@ const MainAppContent: React.FC = () => {
   const [view, setView] = useState<AppView>('landing');
   const [publicSlug, setPublicSlug] = useState<string>('');
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
+  const [cardOriginView, setCardOriginView] = useState<AppView>('home');
   const [userProfile, setUserProfile] = useState<any | null>(null);
   const [isProfileChecking, setIsProfileChecking] = useState<boolean>(true);
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -122,7 +123,12 @@ const MainAppContent: React.FC = () => {
     }
   };
 
-  const handleViewPublicCard = (slug: string) => {
+  const handleViewPublicCard = (slug: string, origin?: AppView) => {
+    if (origin) {
+      setCardOriginView(origin);
+    } else {
+      setCardOriginView(view === 'view-card' ? cardOriginView : view);
+    }
     setPublicSlug(slug);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setView('view-card');
@@ -258,7 +264,7 @@ const MainAppContent: React.FC = () => {
 
       {view === 'saved-cards' && (
         <SavedCards
-          onViewCard={handleViewPublicCard}
+          onViewCard={(slug) => handleViewPublicCard(slug, 'saved-cards')}
           onCreateCard={handleCreateNewCard}
         />
       )}
@@ -280,7 +286,7 @@ const MainAppContent: React.FC = () => {
           slug={publicSlug}
           onBackToHome={() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            setView(isAuthenticated ? 'home' : 'landing');
+            setView(cardOriginView || (isAuthenticated ? 'home' : 'landing'));
           }}
           onPreviewCard={(slug) => {
             setPublicSlug(slug);
