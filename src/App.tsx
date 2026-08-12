@@ -104,7 +104,7 @@ const MainAppContent: React.FC = () => {
       } else {
         setUserProfile(null);
         setIsProfileChecking(false);
-        setView((prev) => (prev === 'home' || prev === 'saved-cards' || prev === 'analytics' || prev === 'onboarding' ? 'landing' : prev));
+        setView((prev) => (prev === 'public-card' ? 'public-card' : 'landing'));
       }
     };
 
@@ -185,6 +185,7 @@ const MainAppContent: React.FC = () => {
           activeView={view}
           onNavigateView={(v) => setView(v as AppView)}
           onLoginClick={() => setView('signin')}
+          onLogoutSuccess={() => setView('landing')}
         />
         <div className="home-container" style={{ textAlign: 'center', paddingTop: '100px' }}>
           <p style={{ color: 'var(--text-secondary)' }}>Loading UNICARD...</p>
@@ -199,6 +200,7 @@ const MainAppContent: React.FC = () => {
         activeView={view}
         onNavigateView={(v) => setView(v as AppView)}
         onLoginClick={() => setView('signin')}
+        onLogoutSuccess={() => setView('landing')}
       />
 
       {view === 'landing' && (

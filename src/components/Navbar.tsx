@@ -10,6 +10,7 @@ interface NavbarProps {
   onViewProfile?: () => void;
   activeView?: string;
   onNavigateView?: (view: 'home' | 'my-cards' | 'saved-cards' | 'analytics') => void;
+  onLogoutSuccess?: () => void;
   isTypewriterActive?: boolean;
 }
 
@@ -20,6 +21,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onViewProfile,
   activeView = 'home',
   onNavigateView,
+  onLogoutSuccess,
   isTypewriterActive = false
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -120,7 +122,9 @@ export const Navbar: React.FC<NavbarProps> = ({
     setDropdownOpen(false);
     setMobileMenuOpen(false);
     await logout();
-    if (onHomeClick) {
+    if (onLogoutSuccess) {
+      onLogoutSuccess();
+    } else if (onHomeClick) {
       onHomeClick();
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
