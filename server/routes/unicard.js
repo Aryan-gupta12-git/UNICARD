@@ -434,6 +434,40 @@ router.get('/cards/:id', requireAuth, async (req, res) => {
   }
 });
 
+// DELETE /api/unicard/cards/:id or /api/cards/:id - Delete specific card with ownership validation
+router.delete('/cards/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const card = await prisma.uniCardProfile.findFirst({
+      where: {
+        AND: [
+          { userId: req.user.id },
+          {
+            OR: [
+              { id: String(id) },
+              { slug: String(id).toLowerCase().trim() }
+            ]
+          }
+        ]
+      }
+    });
+
+    if (!card) {
+      return res.status(404).json({ error: 'Card not found or permission denied.' });
+    }
+
+    await prisma.uniCardProfile.delete({
+      where: { id: card.id }
+    });
+
+    return res.json({ success: true, message: 'Card deleted successfully.', deletedId: card.id });
+  } catch (err) {
+    console.error('Error deleting card:', err);
+    return res.status(500).json({ error: 'Failed to delete card.' });
+  }
+});
+
 // GET /api/unicard/public/:slug - Public read-only UNICARD endpoint (Unauthenticated)
 router.get('/public/:slug', async (req, res) => {
   try {

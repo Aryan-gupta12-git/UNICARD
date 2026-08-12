@@ -282,7 +282,6 @@ const MainAppContent: React.FC = () => {
 
       {view === 'view-card' && (
         <ViewCard
-          profile={userProfile}
           slug={publicSlug}
           onBackToHome={() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -293,7 +292,7 @@ const MainAppContent: React.FC = () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             setView('public-card');
           }}
-          onEditCard={() => handleEditCard()}
+          onEditCard={(targetSlug) => handleEditCard(targetSlug)}
         />
       )}
 

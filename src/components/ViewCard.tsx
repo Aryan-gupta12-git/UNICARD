@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
-import { Download, Share2, Check, ExternalLink, ArrowLeft, Eye, Edit } from 'lucide-react';
+import { Download, Share2, Check, ArrowLeft, Eye, Edit } from 'lucide-react';
 import './ViewCard.css';
 
 interface ViewCardProps {
@@ -8,52 +8,60 @@ interface ViewCardProps {
   slug?: string;
   onBackToHome?: () => void;
   onPreviewCard?: (slug: string) => void;
-  onEditCard?: () => void;
+  onEditCard?: (slug: string) => void;
 }
 
 export const ViewCard: React.FC<ViewCardProps> = ({
-  profile: initialProfile = null,
   slug: initialSlug = '',
   onBackToHome,
   onPreviewCard,
   onEditCard
 }) => {
-  const [profileData, setProfileData] = useState<any | null>(initialProfile);
+  const [profileData, setProfileData] = useState<any | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
-  const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(!initialProfile && Boolean(initialSlug));
+  const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(true);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  // If initialProfile is not provided but initialSlug exists, fetch public profile
+  // Fetch card data directly using the target card ID / slug
   useEffect(() => {
-    const fetchPublicCardData = async () => {
-      if (initialProfile) {
-        setProfileData(initialProfile);
+    const fetchSpecificCardData = async () => {
+      if (!initialSlug) {
         setIsLoadingProfile(false);
         return;
       }
 
-      if (initialSlug) {
-        try {
-          const res = await fetch(`/api/unicard/public/${initialSlug}`);
-          if (res.ok) {
-            const data = await res.json();
-            setProfileData(data.profile || null);
+      setProfileData(null);
+      setIsLoadingProfile(true);
+
+      try {
+        // Fetch specific card from protected cards endpoint
+        let res = await fetch(`/api/unicard/cards/${initialSlug}`, { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.card || data.profile) {
+            setProfileData(data.card || data.profile);
+            return;
           }
-        } catch (err) {
-          console.error('Failed to fetch profile for view card:', err);
-        } finally {
-          setIsLoadingProfile(false);
         }
-      } else {
+
+        // Fallback to public endpoint
+        res = await fetch(`/api/unicard/public/${initialSlug}`);
+        if (res.ok) {
+          const data = await res.json();
+          setProfileData(data.profile || null);
+        }
+      } catch (err) {
+        console.error('Failed to fetch card by ID for view:', err);
+      } finally {
         setIsLoadingProfile(false);
       }
     };
 
-    fetchPublicCardData();
-  }, [initialProfile, initialSlug]);
+    fetchSpecificCardData();
+  }, [initialSlug]);
 
-  const slug = profileData?.slug || initialSlug || 'user';
-  const publicUrl = `unicard.app/u/${slug}`;
+  const cardSlug = profileData?.slug || initialSlug || 'user';
+  const publicUrl = `unicard.app/u/${cardSlug}`;
   const fullUrl = `https://${publicUrl}`;
 
   // Download QR code as PNG image fully on frontend
@@ -63,29 +71,28 @@ export const ViewCard: React.FC<ViewCardProps> = ({
       const imageUrl = canvas.toDataURL('image/png');
       const downloadLink = document.createElement('a');
       downloadLink.href = imageUrl;
-      downloadLink.download = `unicard-${slug}-qr.png`;
+      downloadLink.download = `unicard-${cardSlug}-qr.png`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
     }
   };
 
-  // Share user's public link using Web Share API or clipboard fallback
+  // Web Share API
   const handleShareLink = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `${profileData?.name || 'UNICARD'}`,
-          text: `Check out ${profileData?.name || 'UNICARD'}'s digital card`,
+          title: `${profileData?.name || 'UNICARD'} Contact Card`,
+          text: `Connect with ${profileData?.name || 'me'} on UNICARD`,
           url: fullUrl
         });
         return;
       } catch (err) {
-        // Fallback to clipboard if share dialog is cancelled or fails
+        // Fallback to clipboard
       }
     }
 
-    // Fallback: Copy link to clipboard
     try {
       await navigator.clipboard.writeText(fullUrl);
       setCopied(true);
@@ -95,7 +102,6 @@ export const ViewCard: React.FC<ViewCardProps> = ({
     }
   };
 
-  // Derive presence label
   const getPresenceLabel = () => {
     if (!profileData) return null;
     const online = Boolean(profileData.onlinePresence);
@@ -108,7 +114,12 @@ export const ViewCard: React.FC<ViewCardProps> = ({
 
   const presenceLabel = getPresenceLabel();
 
-  // Check if business details exist
+  const isPersonal = String(profileData?.usageType || '').toUpperCase() === 'PERSONAL';
+  const roleOrBusinessLabel = isPersonal ? 'Profession / Role' : 'Company Name';
+  const roleOrBusinessValue = isPersonal
+    ? (profileData?.designation || profileData?.businessName || 'Creator')
+    : (profileData?.businessName || 'UNICARD');
+
   const hasBusinessDetails = Boolean(
     profileData?.businessName ||
     profileData?.designation ||
@@ -117,7 +128,6 @@ export const ViewCard: React.FC<ViewCardProps> = ({
     presenceLabel
   );
 
-  // Filter entered social links
   const validSocials = Array.isArray(profileData?.socials)
     ? profileData.socials.filter((s: { platform?: string; url?: string }) => s.url && s.url.trim() !== '')
     : [];
@@ -127,8 +137,24 @@ export const ViewCard: React.FC<ViewCardProps> = ({
   if (isLoadingProfile) {
     return (
       <div className="auth-product-page">
-        <div className="view-card-container" style={{ textAlign: 'center', paddingTop: '80px' }}>
-          <p style={{ color: 'var(--text-secondary)' }}>Loading UNICARD...</p>
+        <div className="view-card-container">
+          <div className="view-card-top-bar">
+            {onBackToHome && (
+              <button type="button" className="btn-text-back" onClick={onBackToHome}>
+                <ArrowLeft size={16} />
+                <span>Back</span>
+              </button>
+            )}
+          </div>
+          <div className="view-card-grid" style={{ marginTop: '24px' }}>
+            <div className="view-card-left">
+              <div className="skeleton-pulse" style={{ height: '360px', borderRadius: '24px', backgroundColor: '#F0F3F7' }} />
+            </div>
+            <div className="view-card-right" style={{ gap: '24px' }}>
+              <div className="skeleton-pulse" style={{ height: '140px', borderRadius: '16px', backgroundColor: '#F0F3F7' }} />
+              <div className="skeleton-pulse" style={{ height: '140px', borderRadius: '16px', backgroundColor: '#F0F3F7' }} />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -158,18 +184,13 @@ export const ViewCard: React.FC<ViewCardProps> = ({
                   value={fullUrl}
                   size={320}
                   level="H"
-                  marginSize={1}
-                  bgColor="#FFFFFF"
-                  fgColor="#0F1E36"
+                  marginSize={0}
+                  aria-label={`QR Code link for ${profileData?.name || 'UNICARD'}`}
                 />
-              </div>
-              <div className="qr-url-text">
-                <span className="url-domain">unicard.app/u/</span>
-                <span className="url-slug-val">{slug}</span>
               </div>
             </div>
 
-            {/* Action Buttons: Download, Share, & Preview */}
+            {/* Action Buttons: Download, Share, Preview, & Edit */}
             <div className="view-card-qr-actions">
               <button
                 type="button"
@@ -194,7 +215,7 @@ export const ViewCard: React.FC<ViewCardProps> = ({
                 className="btn btn-secondary"
                 onClick={() => {
                   if (onPreviewCard) {
-                    onPreviewCard(slug);
+                    onPreviewCard(cardSlug);
                   } else {
                     window.open(fullUrl, '_blank');
                   }
@@ -208,7 +229,7 @@ export const ViewCard: React.FC<ViewCardProps> = ({
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={onEditCard}
+                  onClick={() => onEditCard(cardSlug)}
                 >
                   <Edit size={15} />
                   <span>Edit</span>
@@ -225,7 +246,7 @@ export const ViewCard: React.FC<ViewCardProps> = ({
               <div className="details-list">
                 <div className="detail-item">
                   <span className="detail-label">Full Name</span>
-                  <span className="detail-value detail-value-title">{profileData?.name || '—'}</span>
+                  <span className="detail-value">{profileData?.name || '—'}</span>
                 </div>
 
                 <div className="detail-item">
@@ -233,49 +254,44 @@ export const ViewCard: React.FC<ViewCardProps> = ({
                   <span className="detail-value">{profileData?.email || '—'}</span>
                 </div>
 
-                <div className="detail-item">
-                  <span className="detail-label">Phone Number</span>
-                  <span className="detail-value">{profileData?.phone || '—'}</span>
-                </div>
+                {profileData?.phone && (
+                  <div className="detail-item">
+                    <span className="detail-label">Phone</span>
+                    <span className="detail-value">{profileData.phone}</span>
+                  </div>
+                )}
 
                 {profileData?.bio && (
-                  <div className="detail-item">
+                  <div className="detail-item full-width">
                     <span className="detail-label">Bio</span>
-                    <span className="detail-value detail-bio">{profileData.bio}</span>
+                    <p className="detail-value bio-text">{profileData.bio}</p>
                   </div>
                 )}
               </div>
             </section>
 
-            {/* 2. Business Details Section */}
-            <section className="view-card-section">
-              <h2 className="view-card-section-title">Business Details</h2>
-              {hasBusinessDetails ? (
+            {/* 2. Business / Profession Details Section */}
+            {hasBusinessDetails && (
+              <section className="view-card-section">
+                <h2 className="view-card-section-title">
+                  {isPersonal ? 'Profession Details' : 'Business Details'}
+                </h2>
                 <div className="details-list">
-                  {profileData?.businessName && (
-                    <div className="detail-item">
-                      <span className="detail-label">Business Name</span>
-                      <span className="detail-value">{profileData.businessName}</span>
-                    </div>
-                  )}
+                  <div className="detail-item">
+                    <span className="detail-label">{roleOrBusinessLabel}</span>
+                    <span className="detail-value">{roleOrBusinessValue}</span>
+                  </div>
 
-                  {profileData?.designation && (
+                  {!isPersonal && profileData?.designation && (
                     <div className="detail-item">
-                      <span className="detail-label">Designation</span>
+                      <span className="detail-label">Title / Designation</span>
                       <span className="detail-value">{profileData.designation}</span>
-                    </div>
-                  )}
-
-                  {profileData?.businessAddress && (
-                    <div className="detail-item">
-                      <span className="detail-label">Business Address</span>
-                      <span className="detail-value">{profileData.businessAddress}</span>
                     </div>
                   )}
 
                   {profileData?.businessCategory && (
                     <div className="detail-item">
-                      <span className="detail-label">Business Category</span>
+                      <span className="detail-label">Category</span>
                       <span className="detail-value">{profileData.businessCategory}</span>
                     </div>
                   )}
@@ -286,56 +302,51 @@ export const ViewCard: React.FC<ViewCardProps> = ({
                       <span className="detail-value">{presenceLabel}</span>
                     </div>
                   )}
-                </div>
-              ) : (
-                <p className="detail-empty-text">No business details added.</p>
-              )}
-            </section>
 
-            {/* 3. Links Section */}
-            <section className="view-card-section">
-              <h2 className="view-card-section-title">Links</h2>
-              {hasLinks ? (
-                <div className="details-list">
-                  {profileData?.website && (
-                    <div className="detail-item">
-                      <span className="detail-label">Website</span>
-                      <a
-                        href={profileData.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="detail-link"
-                      >
-                        <span>{profileData.website}</span>
-                        <ExternalLink size={14} />
-                      </a>
+                  {profileData?.businessAddress && (
+                    <div className="detail-item full-width">
+                      <span className="detail-label">Address</span>
+                      <span className="detail-value">{profileData.businessAddress}</span>
                     </div>
                   )}
-
-                  {validSocials.map((s: { platform: string; url: string }, idx: number) => {
-                    const platformName = s.platform
-                      ? s.platform.charAt(0).toUpperCase() + s.platform.slice(1)
-                      : 'Link';
-                    return (
-                      <div key={idx} className="detail-item">
-                        <span className="detail-label">{platformName}</span>
-                        <a
-                          href={s.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="detail-link"
-                        >
-                          <span>{s.url}</span>
-                          <ExternalLink size={14} />
-                        </a>
-                      </div>
-                    );
-                  })}
                 </div>
-              ) : (
-                <p className="detail-empty-text">No links added.</p>
-              )}
-            </section>
+              </section>
+            )}
+
+            {/* 3. Links & Socials Section */}
+            {hasLinks && (
+              <section className="view-card-section">
+                <h2 className="view-card-section-title">Links & Socials</h2>
+                <div className="socials-list">
+                  {profileData?.website && (
+                    <a
+                      href={profileData.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="social-item-link"
+                    >
+                      <span className="social-platform-name">Website</span>
+                      <span className="social-url-text">{profileData.website}</span>
+                    </a>
+                  )}
+
+                  {validSocials.map((social: { platform: string; url: string }, idx: number) => (
+                    <a
+                      key={idx}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="social-item-link"
+                    >
+                      <span className="social-platform-name">
+                        {social.platform.charAt(0).toUpperCase() + social.platform.slice(1)}
+                      </span>
+                      <span className="social-url-text">{social.url}</span>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         </div>
       </div>

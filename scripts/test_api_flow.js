@@ -3,9 +3,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function runTest() {
-  console.log('=== VERIFYING UNICARD 3-CARD CREATION & API RESPONSE ===\n');
+  console.log('=== VERIFYING UNICARD 3-CARD VIEW & DELETE FLOW ===\n');
 
-  // 1. Create a fresh test user
+  // 1. Create fresh test user
   const email = `test_flow_${Date.now()}@example.com`;
   const user = await prisma.user.create({
     data: {
@@ -15,87 +15,112 @@ async function runTest() {
     }
   });
 
-  console.log(`1. Created User ID: ${user.id} (${user.email})`);
+  console.log(`1. Created User ID: ${user.id}`);
 
-  // 2. Create Card A (Peter)
+  // 2. Create Card 1 (Peter Parker - comic-theme)
   const cardA = await prisma.uniCardProfile.create({
     data: {
       userId: user.id,
       slug: `peter-${Date.now()}`,
       name: 'Peter Parker',
-      email: 'peter@dailybugle.com',
-      phone: '1234567890',
+      email: 'peter@test.com',
+      phone: '1111111111',
       theme: 'comic-theme',
       usageType: 'PERSONAL'
     }
   });
-  console.log(`2. Created Card A: ID=${cardA.id}, Name=${cardA.name}`);
 
-  // 3. Create Card B (Bruce)
+  // 3. Create Card 2 (Bruce Wayne - pink-pop-theme)
   const cardB = await prisma.uniCardProfile.create({
     data: {
       userId: user.id,
       slug: `bruce-${Date.now()}`,
       name: 'Bruce Wayne',
-      email: 'bruce@wayneenterprises.com',
-      phone: '9876543210',
+      email: 'bruce@test.com',
+      phone: '2222222222',
       theme: 'pink-pop-theme',
       usageType: 'BUSINESS',
-      businessName: 'Wayne Enterprises',
-      designation: 'CEO'
+      businessName: 'Wayne Enterprises'
     }
   });
-  console.log(`3. Created Card B: ID=${cardB.id}, Name=${cardB.name}`);
 
-  // 4. Create Card C (Clark)
+  // 4. Create Card 3 (Clark Kent - comic-theme)
   const cardC = await prisma.uniCardProfile.create({
     data: {
       userId: user.id,
       slug: `clark-${Date.now()}`,
       name: 'Clark Kent',
-      email: 'clark@dailyplanet.com',
-      phone: '5551234567',
+      email: 'clark@test.com',
+      phone: '3333333333',
       theme: 'comic-theme',
       usageType: 'BUSINESS',
-      businessName: 'Daily Planet',
-      designation: 'Reporter'
+      businessName: 'Daily Planet'
     }
   });
-  console.log(`4. Created Card C: ID=${cardC.id}, Name=${cardC.name}`);
 
-  // 5. Query PostgreSQL database for user's cards
-  const dbCards = await prisma.uniCardProfile.findMany({
+  console.log('Created 3 cards successfully:');
+  console.log(`  - Peter: ID=${cardA.id}, Theme=${cardA.theme}`);
+  console.log(`  - Bruce: ID=${cardB.id}, Theme=${cardB.theme}`);
+  console.log(`  - Clark: ID=${cardC.id}, Theme=${cardC.theme}`);
+
+  // 5. Test opening each card independently by ID
+  const fetchCardA = await prisma.uniCardProfile.findFirst({
+    where: { id: cardA.id, userId: user.id }
+  });
+  const fetchCardB = await prisma.uniCardProfile.findFirst({
+    where: { id: cardB.id, userId: user.id }
+  });
+  const fetchCardC = await prisma.uniCardProfile.findFirst({
+    where: { id: cardC.id, userId: user.id }
+  });
+
+  console.log('\n=== VERIFYING INDIVIDUAL CARD FETCH BY ID ===');
+  console.log(`  Peter fetch: Name="${fetchCardA.name}", Email="${fetchCardA.email}", Theme="${fetchCardA.theme}"`);
+  console.log(`  Bruce fetch: Name="${fetchCardB.name}", Email="${fetchCardB.email}", Theme="${fetchCardB.theme}"`);
+  console.log(`  Clark fetch: Name="${fetchCardC.name}", Email="${fetchCardC.email}", Theme="${fetchCardC.theme}"`);
+
+  if (
+    fetchCardA.name === 'Peter Parker' &&
+    fetchCardB.name === 'Bruce Wayne' &&
+    fetchCardC.name === 'Clark Kent'
+  ) {
+    console.log('-> SUCCESS: Each card opened with ITS OWN saved details and theme!');
+  } else {
+    console.error('-> ERROR: Card details leaked!');
+  }
+
+  // 6. Test deleting Card B (Bruce Wayne)
+  console.log('\n=== TESTING DELETE CARD B (BRUCE WAYNE) ===');
+  await prisma.uniCardProfile.delete({
+    where: { id: cardB.id }
+  });
+  console.log(`Deleted Card B (ID=${cardB.id}).`);
+
+  // 7. Verify database cards for user after deletion
+  const remainingCards = await prisma.uniCardProfile.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: 'desc' }
   });
 
-  console.log(`\n=== DATABASE QUERY RESULT: Found ${dbCards.length} rows for user ===`);
-  dbCards.forEach((c, idx) => {
-    console.log(`  [Card ${idx + 1}] ID=${c.id} | UserID=${c.userId} | Name=${c.name} | Theme=${c.theme} | Slug=${c.slug}`);
+  console.log(`\nRemaining cards in database (${remainingCards.length} total):`);
+  remainingCards.forEach((c) => {
+    console.log(`  - ID=${c.id} | Name=${c.name} | Theme=${c.theme}`);
   });
 
-  // 6. Test Edit Bruce Wayne (Card B)
-  const updatedBruce = await prisma.uniCardProfile.update({
-    where: { id: cardB.id },
-    data: { designation: 'Chairman & CEO' }
-  });
-  console.log(`\n5. Updated Card B (Bruce) designation to: "${updatedBruce.designation}"`);
-
-  // 7. Verify all 3 cards after update
-  const finalCards = await prisma.uniCardProfile.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: 'desc' }
-  });
-
-  console.log(`\n=== FINAL VERIFICATION AFTER EDITING BRUCE ===`);
-  console.log(`Total rows in PostgreSQL: ${finalCards.length}`);
-  finalCards.forEach((c) => {
-    console.log(`  - ID=${c.id} | Name=${c.name} | Designation=${c.designation || 'N/A'}`);
-  });
+  if (
+    remainingCards.length === 2 &&
+    remainingCards.some((c) => c.name === 'Peter Parker') &&
+    remainingCards.some((c) => c.name === 'Clark Kent') &&
+    !remainingCards.some((c) => c.name === 'Bruce Wayne')
+  ) {
+    console.log('\n-> SUCCESS: Bruce deleted! Peter and Clark remain completely untouched in database!');
+  } else {
+    console.error('\n-> ERROR: Deletion failed or corrupted other cards!');
+  }
 
   // Clean up test user
   await prisma.user.delete({ where: { id: user.id } });
-  console.log('\nCleaned up test user cleanly.');
+  console.log('Cleaned up test user cleanly.\n');
   await prisma.$disconnect();
 }
 
