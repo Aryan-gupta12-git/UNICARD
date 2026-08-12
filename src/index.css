@@ -60,6 +60,16 @@ body {
   overflow-x: hidden;
 }
 
+/* Disable background UI interactions while Know Us typewriter story is active */
+body.is-typewriter-active button:not(.white-screen-story-card button),
+body.is-typewriter-active a:not(.white-screen-story-card a),
+.is-disabled-nav {
+  pointer-events: none !important;
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+  transition: opacity 0.25s ease;
+}
+
 /* Typography Base Styles */
 h1,
 h2,

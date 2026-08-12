@@ -37,11 +37,24 @@ const MainAppContent: React.FC = () => {
   const [userProfile, setUserProfile] = useState<any | null>(null);
   const [isProfileChecking, setIsProfileChecking] = useState<boolean>(true);
   const [savedCardsRefreshKey, setSavedCardsRefreshKey] = useState<number>(0);
+  const [isTypewriterActive, setIsTypewriterActive] = useState<boolean>(false);
 
   const handleSavedCardAdded = () => {
     setSavedCardsRefreshKey((prev) => prev + 1);
   };
   const { isAuthenticated, isLoading, user } = useAuth();
+
+  // Toggle is-typewriter-active class on body to disable UI buttons when story is playing
+  useEffect(() => {
+    if (isTypewriterActive) {
+      document.body.classList.add('is-typewriter-active');
+    } else {
+      document.body.classList.remove('is-typewriter-active');
+    }
+    return () => {
+      document.body.classList.remove('is-typewriter-active');
+    };
+  }, [isTypewriterActive]);
 
   // Check URL pathname for /c/:slug or /u/:slug on mount
   useEffect(() => {
@@ -186,6 +199,7 @@ const MainAppContent: React.FC = () => {
           onNavigateView={(v) => setView(v as AppView)}
           onLoginClick={() => setView('signin')}
           onLogoutSuccess={() => setView('landing')}
+          isTypewriterActive={isTypewriterActive}
         />
         <div className="home-container" style={{ textAlign: 'center', paddingTop: '100px' }}>
           <p style={{ color: 'var(--text-secondary)' }}>Loading UNICARD...</p>
@@ -201,11 +215,15 @@ const MainAppContent: React.FC = () => {
         onNavigateView={(v) => setView(v as AppView)}
         onLoginClick={() => setView('signin')}
         onLogoutSuccess={() => setView('landing')}
+        isTypewriterActive={isTypewriterActive}
       />
 
       {view === 'landing' && (
         <main>
-          <Hero />
+          <Hero
+            onLoginClick={() => setView('signin')}
+            onTypewriterStateChange={setIsTypewriterActive}
+          />
           <AboutUs />
           <Benefits />
         </main>
