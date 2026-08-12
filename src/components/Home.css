@@ -162,8 +162,8 @@
   z-index: 0;
 }
 
-.card-box.comic-theme>*,
-.card.comic-theme>* {
+.card-box.comic-theme > *:not(.card-delete-btn),
+.card.comic-theme > *:not(.card-delete-btn) {
   position: relative;
   z-index: 1;
 }
@@ -214,27 +214,19 @@
   display: none;
 }
 
-/* 4. BUSINESS Label */
+/* 4. BUSINESS / PROFESSION Label & Value */
 .card-box.comic-theme .card-business-label,
 .card.comic-theme .card-business-label,
-.comic-theme .business-label {
-  font-family: "Bangers", cursive, sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: #111111;
-  text-shadow: none;
-}
-
-/* 5. Business Name */
+.comic-theme .business-label,
 .card-box.comic-theme .card-business-name,
 .card.comic-theme .card-business-name,
 .comic-theme .business-name {
   font-family: "Bangers", cursive, sans-serif;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 400;
-  letter-spacing: 0.02em;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   color: #111111;
   text-shadow: none;
 }
@@ -346,39 +338,24 @@
   display: none;
 }
 
-/* BUSINESS Label - Bottom-Left using Bangers font in Black */
+/* BUSINESS / PROFESSION Label & Value - Bottom-Left & Bottom-Right using Bangers font in Black */
 .card-box.pink-pop-theme .card-business-label,
 .card-box.pink-theme .card-business-label,
 .card.pink-pop-theme .card-business-label,
-.card.pink-theme .card-business-label {
-  font-family: "Bangers", cursive, sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: #111111;
-  text-shadow: none;
-  margin: 0;
-}
-
-/* Business Name - Bottom-Right using Bangers font in Black */
+.card.pink-theme .card-business-label,
 .card-box.pink-pop-theme .card-business-name,
 .card-box.pink-theme .card-business-name,
 .card.pink-pop-theme .card-business-name,
 .card.pink-theme .card-business-name {
   font-family: "Bangers", cursive, sans-serif;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 400;
   line-height: 1.1;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   color: #111111;
-  text-align: right;
   text-shadow: none;
   margin: 0;
-  max-width: 60%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* ==========================================================================
@@ -468,32 +445,18 @@
 }
 
 .card-box.spider-comic-theme .card-business-label,
-.card.spider-comic-theme .card-business-label {
+.card.spider-comic-theme .card-business-label,
+.card-box.spider-comic-theme .card-business-name,
+.card.spider-comic-theme .card-business-name {
   font-family: "Bangers", cursive, sans-serif;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 400;
-  letter-spacing: 0.05em;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: #111111;
   text-shadow: none;
   margin: 0;
-}
-
-.card-box.spider-comic-theme .card-business-name,
-.card.spider-comic-theme .card-business-name {
-  font-family: "Bangers", cursive, sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: 0.02em;
-  color: #111111;
-  text-align: right;
-  text-shadow: none;
-  margin: 0;
-  max-width: 60%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 /* Featured Articles Section */
@@ -656,12 +619,6 @@
   .card.pink-theme .card-user-name,
   .pink-theme .name {
     font-size: 38px;
-  }
-
-  .card-box.pink-theme .card-business-name,
-  .card.pink-theme .card-business-name,
-  .pink-theme .business-name {
-    font-size: 20px;
   }
 }
 
