@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './Home.css';
 
 interface SavedCardsProps {
@@ -6,31 +6,8 @@ interface SavedCardsProps {
   onCreateCard?: () => void;
 }
 
-export const SavedCards: React.FC<SavedCardsProps> = ({ onViewCard, onCreateCard }) => {
-  const [userCards, setUserCards] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    const fetchUserCards = async () => {
-      try {
-        const res = await fetch('/api/unicard/me', { credentials: 'include' });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.profile) {
-            setUserCards([data.profile]);
-          } else if (Array.isArray(data.cards)) {
-            setUserCards(data.cards);
-          }
-        }
-      } catch (err) {
-        console.error('Fetch saved cards error:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserCards();
-  }, []);
+export const SavedCards: React.FC<SavedCardsProps> = ({ onViewCard }) => {
+  const [savedCards] = useState<any[]>([]);
 
   const handleCardClick = (slugOrId: string) => {
     if (onViewCard) {
@@ -43,25 +20,18 @@ export const SavedCards: React.FC<SavedCardsProps> = ({ onViewCard, onCreateCard
       <div className="home-container">
         <h2 className="articles-heading" style={{ marginBottom: '24px' }}>Saved Cards</h2>
 
-        {loading ? (
-          <p style={{ color: 'var(--text-secondary)', padding: '24px 0' }}>Loading saved cards...</p>
-        ) : userCards.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '48px 24px', backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
+        {savedCards.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '56px 24px', backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
             <h3 style={{ fontSize: '20px', fontFamily: 'var(--font-serif)', color: '#0F1E36', marginBottom: '8px' }}>
-              No cards saved yet
+              No scanned cards yet
             </h3>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
-              Create your digital UNICARD to manage your identity.
+            <p style={{ color: 'var(--text-secondary)', maxWidth: '420px', margin: '0 auto' }}>
+              Cards that you scan from other UNICARD connections will automatically appear here.
             </p>
-            {onCreateCard && (
-              <button className="btn btn-primary" onClick={onCreateCard}>
-                Create Card Now
-              </button>
-            )}
           </div>
         ) : (
           <div className="cards-grid" style={{ marginTop: '0' }}>
-            {userCards.map((card, idx) => {
+            {savedCards.map((card, idx) => {
               const themeClass = card.theme === 'pink-theme' ? 'pink-pop-theme' : (card.theme || 'comic-theme');
               return (
                 <div

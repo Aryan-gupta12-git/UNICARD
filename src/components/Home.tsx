@@ -5,7 +5,7 @@ interface HomeProps {
   userName?: string;
   profile?: any | null;
   onViewCard?: (slug: string) => void;
-  onEditDetails: () => void;
+  onEditDetails?: () => void;
   onCreateCard: () => void;
   onNavigate?: (view: 'saved-cards' | 'analytics') => void;
 }
@@ -53,7 +53,6 @@ export const Home: React.FC<HomeProps> = ({
   userName = 'User',
   profile: initialProfile = null,
   onViewCard,
-  onEditDetails,
   onCreateCard
 }) => {
   const [userCards, setUserCards] = useState<any[]>(initialProfile ? [initialProfile] : []);
@@ -89,14 +88,6 @@ export const Home: React.FC<HomeProps> = ({
     }
   };
 
-  const handleCreateClick = () => {
-    if (userCards.length > 0) {
-      onEditDetails();
-    } else {
-      onCreateCard();
-    }
-  };
-
   return (
     <div className="auth-product-page">
       <div className="home-container">
@@ -107,15 +98,15 @@ export const Home: React.FC<HomeProps> = ({
             {userCards.length > 0 ? "Manage your UNICARD digital identity" : "Let's make your first card"}
           </p>
           <div className="home-action-wrapper">
-            <button className="btn btn-primary" onClick={handleCreateClick}>
-              {userCards.length > 0 ? "Edit Card" : "Create"}
+            <button className="btn btn-primary" onClick={onCreateCard}>
+              {userCards.length > 0 ? "Create more" : "Create"}
             </button>
           </div>
         </header>
 
         {/* User Cards Section */}
         <section className="home-cards-section">
-          <h2 className="articles-heading">Saved Cards</h2>
+          <h2 className="articles-heading">My Cards</h2>
 
           {loading ? (
             <p style={{ color: 'var(--text-secondary)', padding: '24px 0' }}>Loading your cards...</p>

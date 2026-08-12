@@ -120,7 +120,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className={activeView === 'saved-cards' ? 'is-active' : ''}
                 onClick={(e) => handleAuthenticatedNav(e, 'saved-cards')}
               >
-                Saved Cards
+                My Cards
               </a>
               <a
                 href="#analytics"
@@ -213,7 +213,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className={activeView === 'saved-cards' ? 'is-active' : ''}
                 onClick={(e) => handleAuthenticatedNav(e, 'saved-cards')}
               >
-                Saved Cards
+                My Cards
               </a>
               <a
                 href="#analytics"
