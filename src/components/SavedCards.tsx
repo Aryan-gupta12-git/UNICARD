@@ -114,9 +114,9 @@ export const SavedCards: React.FC<SavedCardsProps> = ({ onViewCard }) => {
               const themeClass = card.theme === 'pink-theme' ? 'pink-pop-theme' : (card.theme || 'comic-theme');
               const isPersonal = String(card.usageType || '').toUpperCase() === 'PERSONAL';
               const metaLabel = isPersonal ? 'PROFESSION' : 'BUSINESS';
-              const metaValue = isPersonal
-                ? (card.designation || card.businessName || 'CREATOR')
-                : (card.businessName || 'UNICARD');
+              const cardProfession = card.designation || card.profession || '';
+              const cardBusiness = card.businessName || '';
+              const metaValue = isPersonal ? cardProfession : (cardBusiness || cardProfession || '');
 
               return (
                 <div

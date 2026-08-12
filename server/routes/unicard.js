@@ -148,15 +148,17 @@ router.post('/', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Usage type must be Personal or Business.' });
     }
 
-    // Business validation if usageType is BUSINESS
+    // Extract designation / profession for both Personal and Business cards
+    const designation = business?.designation
+      ? String(business.designation).trim()
+      : (req.body.profession ? String(req.body.profession).trim() : null);
+
     let businessName = null;
-    let designation = null;
     let businessAddress = null;
     let businessCategory = null;
 
     if (normalizedUsageType === 'BUSINESS') {
       businessName = business?.name ? String(business.name).trim() : null;
-      designation = business?.designation ? String(business.designation).trim() : null;
       businessAddress = business?.address ? String(business.address).trim() : null;
       businessCategory = business?.category ? String(business.category).trim() : null;
 
@@ -284,14 +286,17 @@ router.put('/cards/:id', requireAuth, async (req, res) => {
       return res.status(400).json({ error: 'Please enter a valid email address.' });
     }
 
+    // Extract designation / profession for both Personal and Business cards
+    const designation = business?.designation
+      ? String(business.designation).trim()
+      : (req.body.profession ? String(req.body.profession).trim() : null);
+
     let businessName = null;
-    let designation = null;
     let businessAddress = null;
     let businessCategory = null;
 
     if (normalizedUsageType === 'BUSINESS') {
       businessName = business?.name ? String(business.name).trim() : null;
-      designation = business?.designation ? String(business.designation).trim() : null;
       businessAddress = business?.address ? String(business.address).trim() : null;
       businessCategory = business?.category ? String(business.category).trim() : null;
 

@@ -3,124 +3,89 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function runTest() {
-  console.log('=== VERIFYING UNICARD 3-CARD VIEW & DELETE FLOW ===\n');
+  console.log('=== VERIFYING DYNAMIC PROFESSION FIELD PERSISTENCE ===\n');
 
   // 1. Create fresh test user
-  const email = `test_flow_${Date.now()}@example.com`;
   const user = await prisma.user.create({
     data: {
-      name: 'Flow Test User',
-      email,
+      name: 'Profession Test User',
+      email: `test_prof_${Date.now()}@example.com`,
       passwordHash: 'hashed_pwd_123'
     }
   });
 
   console.log(`1. Created User ID: ${user.id}`);
 
-  // 2. Create Card 1 (Peter Parker - comic-theme)
+  // 2. Create Card A (Peter Parker - Profession: Photographer)
   const cardA = await prisma.uniCardProfile.create({
     data: {
       userId: user.id,
       slug: `peter-${Date.now()}`,
       name: 'Peter Parker',
-      email: 'peter@test.com',
+      email: 'peter@dailybugle.com',
       phone: '1111111111',
       theme: 'comic-theme',
-      usageType: 'PERSONAL'
+      usageType: 'PERSONAL',
+      designation: 'Photographer'
     }
   });
+  console.log(`2. Created Card A: Name=${cardA.name}, Profession/Designation="${cardA.designation}"`);
 
-  // 3. Create Card 2 (Bruce Wayne - pink-pop-theme)
+  // 3. Create Card B (Bruce Wayne - Profession: Architect)
   const cardB = await prisma.uniCardProfile.create({
     data: {
       userId: user.id,
       slug: `bruce-${Date.now()}`,
       name: 'Bruce Wayne',
-      email: 'bruce@test.com',
+      email: 'bruce@wayneenterprises.com',
       phone: '2222222222',
       theme: 'pink-pop-theme',
-      usageType: 'BUSINESS',
-      businessName: 'Wayne Enterprises'
+      usageType: 'PERSONAL',
+      designation: 'Architect'
     }
   });
+  console.log(`3. Created Card B: Name=${cardB.name}, Profession/Designation="${cardB.designation}"`);
 
-  // 4. Create Card 3 (Clark Kent - comic-theme)
-  const cardC = await prisma.uniCardProfile.create({
-    data: {
-      userId: user.id,
-      slug: `clark-${Date.now()}`,
-      name: 'Clark Kent',
-      email: 'clark@test.com',
-      phone: '3333333333',
-      theme: 'comic-theme',
-      usageType: 'BUSINESS',
-      businessName: 'Daily Planet'
-    }
-  });
-
-  console.log('Created 3 cards successfully:');
-  console.log(`  - Peter: ID=${cardA.id}, Theme=${cardA.theme}`);
-  console.log(`  - Bruce: ID=${cardB.id}, Theme=${cardB.theme}`);
-  console.log(`  - Clark: ID=${cardC.id}, Theme=${cardC.theme}`);
-
-  // 5. Test opening each card independently by ID
+  // 4. Fetch each card by ID from database and verify profession is card-specific
   const fetchCardA = await prisma.uniCardProfile.findFirst({
     where: { id: cardA.id, userId: user.id }
   });
   const fetchCardB = await prisma.uniCardProfile.findFirst({
     where: { id: cardB.id, userId: user.id }
   });
-  const fetchCardC = await prisma.uniCardProfile.findFirst({
-    where: { id: cardC.id, userId: user.id }
-  });
 
-  console.log('\n=== VERIFYING INDIVIDUAL CARD FETCH BY ID ===');
-  console.log(`  Peter fetch: Name="${fetchCardA.name}", Email="${fetchCardA.email}", Theme="${fetchCardA.theme}"`);
-  console.log(`  Bruce fetch: Name="${fetchCardB.name}", Email="${fetchCardB.email}", Theme="${fetchCardB.theme}"`);
-  console.log(`  Clark fetch: Name="${fetchCardC.name}", Email="${fetchCardC.email}", Theme="${fetchCardC.theme}"`);
+  console.log('\n=== VERIFYING PROFESSION FIELD VALUES ===');
+  console.log(`  Peter Parker Profession: "${fetchCardA.designation}"`);
+  console.log(`  Bruce Wayne Profession: "${fetchCardB.designation}"`);
 
-  if (
-    fetchCardA.name === 'Peter Parker' &&
-    fetchCardB.name === 'Bruce Wayne' &&
-    fetchCardC.name === 'Clark Kent'
-  ) {
-    console.log('-> SUCCESS: Each card opened with ITS OWN saved details and theme!');
+  if (fetchCardA.designation === 'Photographer' && fetchCardB.designation === 'Architect') {
+    console.log('-> SUCCESS: Profession is correctly saved and card-specific!');
   } else {
-    console.error('-> ERROR: Card details leaked!');
+    console.error('-> ERROR: Profession mismatch!');
   }
 
-  // 6. Test deleting Card B (Bruce Wayne)
-  console.log('\n=== TESTING DELETE CARD B (BRUCE WAYNE) ===');
-  await prisma.uniCardProfile.delete({
-    where: { id: cardB.id }
-  });
-  console.log(`Deleted Card B (ID=${cardB.id}).`);
-
-  // 7. Verify database cards for user after deletion
-  const remainingCards = await prisma.uniCardProfile.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: 'desc' }
+  // 5. Test editing Bruce's profession to "Product Designer"
+  const updatedBruce = await prisma.uniCardProfile.update({
+    where: { id: cardB.id },
+    data: { designation: 'Product Designer' }
   });
 
-  console.log(`\nRemaining cards in database (${remainingCards.length} total):`);
-  remainingCards.forEach((c) => {
-    console.log(`  - ID=${c.id} | Name=${c.name} | Theme=${c.theme}`);
-  });
+  const refetchedA = await prisma.uniCardProfile.findFirst({ where: { id: cardA.id } });
+  const refetchedB = await prisma.uniCardProfile.findFirst({ where: { id: cardB.id } });
 
-  if (
-    remainingCards.length === 2 &&
-    remainingCards.some((c) => c.name === 'Peter Parker') &&
-    remainingCards.some((c) => c.name === 'Clark Kent') &&
-    !remainingCards.some((c) => c.name === 'Bruce Wayne')
-  ) {
-    console.log('\n-> SUCCESS: Bruce deleted! Peter and Clark remain completely untouched in database!');
+  console.log('\n=== AFTER EDITING BRUCE PROFESSION TO "Product Designer" ===');
+  console.log(`  Peter Parker Profession: "${refetchedA.designation}"`);
+  console.log(`  Bruce Wayne Profession: "${refetchedB.designation}"`);
+
+  if (refetchedA.designation === 'Photographer' && refetchedB.designation === 'Product Designer') {
+    console.log('-> SUCCESS: Editing Bruce updated ONLY Bruce! Peter remains "Photographer"!');
   } else {
-    console.error('\n-> ERROR: Deletion failed or corrupted other cards!');
+    console.error('-> ERROR: Edit leaked to other cards!');
   }
 
   // Clean up test user
   await prisma.user.delete({ where: { id: user.id } });
-  console.log('Cleaned up test user cleanly.\n');
+  console.log('\nCleaned up test user cleanly.');
   await prisma.$disconnect();
 }
 

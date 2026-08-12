@@ -116,13 +116,14 @@ export const ViewCard: React.FC<ViewCardProps> = ({
 
   const isPersonal = String(profileData?.usageType || '').toUpperCase() === 'PERSONAL';
   const roleOrBusinessLabel = isPersonal ? 'Profession / Role' : 'Company Name';
+  const userProfession = profileData?.designation || profileData?.profession || '';
   const roleOrBusinessValue = isPersonal
-    ? (profileData?.designation || profileData?.businessName || 'Creator')
-    : (profileData?.businessName || 'UNICARD');
+    ? userProfession
+    : (profileData?.businessName || '');
 
   const hasBusinessDetails = Boolean(
     profileData?.businessName ||
-    profileData?.designation ||
+    userProfession ||
     profileData?.businessAddress ||
     profileData?.businessCategory ||
     presenceLabel
@@ -253,6 +254,13 @@ export const ViewCard: React.FC<ViewCardProps> = ({
                   <span className="detail-label">Email</span>
                   <span className="detail-value">{profileData?.email || '—'}</span>
                 </div>
+
+                {userProfession && (
+                  <div className="detail-item">
+                    <span className="detail-label">Profession</span>
+                    <span className="detail-value">{userProfession}</span>
+                  </div>
+                )}
 
                 {profileData?.phone && (
                   <div className="detail-item">
