@@ -87,7 +87,9 @@ export const Home: React.FC<HomeProps> = ({
       <div className="home-container">
         {/* Top Welcome Header */}
         <header className="home-header">
-          <h1 className="home-title">Welcome back, {firstName}.</h1>
+          <h1 className="home-title">
+            Welcome back, <span style={{ color: '#0EA5E9' }}>{firstName}</span>.
+          </h1>
           {userCards.length === 0 && (
             <p className="home-subheading">Let's make your first card</p>
           )}
