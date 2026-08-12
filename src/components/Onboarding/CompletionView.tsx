@@ -18,23 +18,34 @@ export const CompletionView: React.FC<CompletionViewProps> = ({
 }) => {
   const generatedSlug = slug || data.name.toLowerCase().trim().replace(/[^a-z0-9]/g, '-') || 'user';
 
-  const handleViewCardClick = () => {
-    onViewCard(generatedSlug);
+  const handleViewCardClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onViewCard) {
+      onViewCard(generatedSlug);
+    }
   };
 
-  const handleBackToHomeClick = () => {
-    if (onGoHome) onGoHome();
+  const handleBackToHomeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onGoHome) {
+      onGoHome();
+    }
   };
 
   return (
-    <div className="onboarding-step completion-view fade-in-section is-visible" style={{ textAlign: 'center', paddingTop: '20px' }}>
+    <div
+      className="onboarding-step completion-view fade-in-section is-visible"
+      style={{ textAlign: 'center', paddingTop: '20px', position: 'relative', zIndex: 10 }}
+    >
       {/* 1. Lottie Animation */}
-      <div className="lottie-animation-wrapper" style={{ marginBottom: '16px' }}>
+      <div className="lottie-animation-wrapper" style={{ marginBottom: '16px', pointerEvents: 'none' }}>
         <DotLottieReact
           src="https://lottie.host/4963b850-df22-40cb-b399-2f4155c6445b/d4pvpMaqLi.lottie"
           loop={true}
           autoplay
-          style={{ width: '220px', height: '220px', margin: '0 auto' }}
+          style={{ width: '220px', height: '220px', margin: '0 auto', pointerEvents: 'none' }}
         />
       </div>
 
@@ -44,11 +55,22 @@ export const CompletionView: React.FC<CompletionViewProps> = ({
       </h2>
 
       {/* 3. Action Buttons below heading */}
-      <div className="completion-actions-dual" style={{ justifyContent: 'center', gap: '16px' }}>
+      <div
+        className="completion-actions-dual"
+        style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '16px',
+          position: 'relative',
+          zIndex: 20,
+          pointerEvents: 'auto'
+        }}
+      >
         <button
           type="button"
           className="btn btn-primary"
           onClick={handleViewCardClick}
+          style={{ cursor: 'pointer', zIndex: 30, pointerEvents: 'auto' }}
         >
           View Card
         </button>
@@ -56,6 +78,7 @@ export const CompletionView: React.FC<CompletionViewProps> = ({
           type="button"
           className="btn btn-secondary"
           onClick={handleBackToHomeClick}
+          style={{ cursor: 'pointer', zIndex: 30, pointerEvents: 'auto' }}
         >
           Back to Home
         </button>

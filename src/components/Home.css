@@ -544,3 +544,41 @@
     font-size: 20px;
   }
 }
+
+/* Card Delete Icon Button - Hidden by default, visible ONLY on hover */
+.card-delete-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #DC2626;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.15s ease, background-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card-box:hover .card-delete-btn {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Touch / Mobile fallback: show delete button on touch devices */
+@media (hover: none), (pointer: coarse) {
+  .card-delete-btn {
+    opacity: 0.9;
+    visibility: visible;
+  }
+}

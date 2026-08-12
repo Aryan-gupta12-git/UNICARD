@@ -148,24 +148,6 @@ export const SavedCards: React.FC<SavedCardsProps> = ({
                       className="card-delete-btn"
                       title="Delete Card"
                       onClick={(e) => handleDeleteClick(e, card)}
-                      style={{
-                        position: 'absolute',
-                        top: '12px',
-                        right: '12px',
-                        zIndex: 10,
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '50%',
-                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                        border: '1px solid rgba(0, 0, 0, 0.12)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#DC2626',
-                        cursor: 'pointer',
-                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.12)',
-                        transition: 'transform 0.15s ease, background-color 0.15s ease'
-                      }}
                     >
                       <Trash2 size={15} />
                     </button>

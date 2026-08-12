@@ -284,11 +284,19 @@ export const Onboarding: React.FC<OnboardingProps> = ({
                 data={formData}
                 slug={generatedSlug}
                 onViewCard={(slug) => {
-                  if (onViewCard) onViewCard(slug);
+                  if (onViewCard) {
+                    onViewCard(slug);
+                  } else if (onClose) {
+                    onClose();
+                  }
                 }}
                 onEditDetails={handleEditDetails}
                 onGoHome={() => {
-                  if (onCompleteSuccess) onCompleteSuccess();
+                  if (onCompleteSuccess) {
+                    onCompleteSuccess();
+                  } else if (onClose) {
+                    onClose();
+                  }
                 }}
               />
             )}
