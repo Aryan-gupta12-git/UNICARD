@@ -59,6 +59,12 @@ export const SavedCards: React.FC<SavedCardsProps> = ({ onViewCard }) => {
           <div className="cards-grid" style={{ marginTop: '0' }}>
             {userCards.map((card, idx) => {
               const themeClass = card.theme === 'pink-theme' ? 'pink-pop-theme' : (card.theme || 'comic-theme');
+              const isPersonal = String(card.usageType || '').toUpperCase() === 'PERSONAL';
+              const metaLabel = isPersonal ? 'PROFESSION' : 'BUSINESS';
+              const metaValue = isPersonal
+                ? (card.designation || card.businessName || 'CREATOR')
+                : (card.businessName || 'UNICARD');
+
               return (
                 <div
                   key={card.id || idx}
@@ -68,11 +74,10 @@ export const SavedCards: React.FC<SavedCardsProps> = ({ onViewCard }) => {
                 >
                   <div className="card-box-main">
                     <h3 className="card-user-name">{card.name}</h3>
-                    <p className="card-user-email">{card.email}</p>
                   </div>
                   <div className="card-meta-row">
-                    <span className="card-business-label">BUSINESS</span>
-                    <span className="card-business-name">{card.businessName || 'UNICARD'}</span>
+                    <span className="card-business-label">{metaLabel}</span>
+                    <span className="card-business-name">{metaValue}</span>
                   </div>
                 </div>
               );

@@ -102,9 +102,23 @@ export const PurposeStep: React.FC<PurposeStepProps> = ({ data, updateData, onNe
 
       {errors.usageType && <span className="error-text error-block">{errors.usageType}</span>}
 
-      {/* Personal Card Theme Options */}
+      {/* Personal Card Theme & Profession Options */}
       {data.usageType === 'personal' && (
         <div className="business-fields-container fade-in-subfields">
+          <div className="form-group" style={{ marginBottom: '16px' }}>
+            <label htmlFor="personalProfession" className="form-label">
+              Profession / Role
+            </label>
+            <input
+              id="personalProfession"
+              type="text"
+              className="form-input"
+              placeholder="e.g. Designer, Software Engineer, Creator, Photographer..."
+              value={data.business.designation}
+              onChange={(e) => handleBusinessChange('designation', e.target.value)}
+            />
+          </div>
+
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label" style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
               Select Card Theme
