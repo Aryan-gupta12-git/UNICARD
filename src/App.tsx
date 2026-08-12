@@ -201,8 +201,80 @@ const MainAppContent: React.FC = () => {
           onLogoutSuccess={() => setView('landing')}
           isTypewriterActive={isTypewriterActive}
         />
-        <div className="home-container" style={{ textAlign: 'center', paddingTop: '100px' }}>
-          <p style={{ color: 'var(--text-secondary)' }}>Loading UNICARD...</p>
+        <div className="home-container" style={{ marginTop: '20px' }}>
+          {/* Welcome Header Skeleton */}
+          <header className="home-header" style={{ marginBottom: '40px' }}>
+            <div
+              className="skeleton-pulse"
+              style={{
+                width: 'min(320px, 80%)',
+                height: '42px',
+                borderRadius: '12px',
+                marginBottom: '16px'
+              }}
+            />
+            <div
+              className="skeleton-pulse"
+              style={{
+                width: '120px',
+                height: '44px',
+                borderRadius: '9999px',
+                marginTop: '16px'
+              }}
+            />
+          </header>
+
+          {/* Saved Cards Section Skeleton */}
+          <section className="home-cards-section" style={{ marginTop: '36px', paddingTop: '36px', borderTop: '1px solid var(--border-subtle)' }}>
+            <div
+              className="skeleton-pulse"
+              style={{
+                width: '140px',
+                height: '24px',
+                borderRadius: '6px',
+                marginBottom: '20px'
+              }}
+            />
+            <div className="cards-grid" style={{ marginTop: '0' }}>
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="card-box skeleton-pulse"
+                  style={{
+                    height: '220px',
+                    borderRadius: '16px',
+                    border: '1px solid var(--border-subtle)'
+                  }}
+                />
+              ))}
+            </div>
+          </section>
+
+          {/* Featured Articles Section Skeleton */}
+          <section className="home-articles-section" style={{ marginTop: '48px', paddingTop: '36px', borderTop: '1px solid var(--border-subtle)' }}>
+            <div
+              className="skeleton-pulse"
+              style={{
+                width: '160px',
+                height: '24px',
+                borderRadius: '6px',
+                marginBottom: '20px'
+              }}
+            />
+            <div className="articles-grid">
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="article-box skeleton-pulse"
+                  style={{
+                    height: '220px',
+                    borderRadius: '16px',
+                    border: '1px solid var(--border-subtle)'
+                  }}
+                />
+              ))}
+            </div>
+          </section>
         </div>
       </div>
     );
