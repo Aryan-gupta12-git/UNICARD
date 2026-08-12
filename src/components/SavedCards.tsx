@@ -16,10 +16,14 @@ export const SavedCards: React.FC<SavedCardsProps> = ({ onViewCard }) => {
         const res = await fetch('/api/unicard/me', { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
-          if (data.profile) {
-            setUserCards([data.profile]);
-          } else if (Array.isArray(data.cards)) {
+          if (Array.isArray(data.cards)) {
             setUserCards(data.cards);
+          } else if (Array.isArray(data)) {
+            setUserCards(data);
+          } else if (data.profile) {
+            setUserCards([data.profile]);
+          } else {
+            setUserCards([]);
           }
         }
       } catch (err) {
