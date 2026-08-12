@@ -105,11 +105,33 @@ a {
   transition: opacity var(--transition-fast), color var(--transition-fast);
 }
 
+button,
+a,
+.btn,
+.card-delete-btn,
+input[type="button"],
+input[type="submit"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
 button {
   font-family: var(--font-sans);
   cursor: pointer;
   border: none;
   background: none;
+}
+
+button:focus,
+.btn:focus,
+a:focus {
+  outline: none;
+}
+
+button:focus-visible,
+.btn:focus-visible,
+a:focus-visible {
+  outline: 2px solid #0EA5E9;
+  outline-offset: 2px;
 }
 
 /* Container */
@@ -156,13 +178,24 @@ button {
   transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.btn:hover::before {
-  width: 100%;
+/* Temporary Pressed State - Only active while finger holds down */
+.btn:active,
+button:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+  transition: transform 0.05s ease, opacity 0.05s ease;
 }
 
-.btn:hover {
-  color: #FFFFFF;
-  border-color: #0F1E36;
+/* Hover effects scoped strictly to mouse/pointer devices */
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover::before {
+    width: 100%;
+  }
+
+  .btn:hover {
+    color: #FFFFFF;
+    border-color: #0F1E36;
+  }
 }
 
 .btn-primary {
