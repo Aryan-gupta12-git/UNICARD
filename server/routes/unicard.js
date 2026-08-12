@@ -105,11 +105,13 @@ router.post('/', requireAuth, async (req, res) => {
       email,
       phone,
       bio,
+      theme,
       usageType,
       business,
       presence,
       website,
-      socials
+      socials,
+      profileImageUrl
     } = req.body;
 
     // Field validation
@@ -120,6 +122,7 @@ router.post('/', requireAuth, async (req, res) => {
     const cleanName = String(name).trim();
     const cleanEmail = String(email).toLowerCase().trim();
     const cleanPhone = String(phone || '').trim();
+    const cleanTheme = theme ? String(theme).trim() : 'comic-theme';
     const normalizedUsageType = usageType ? String(usageType).toUpperCase() : 'PERSONAL';
 
     if (!cleanName) {
@@ -188,7 +191,6 @@ router.post('/', requireAuth, async (req, res) => {
 
     let slug;
     if (existingProfile) {
-      // Retain existing slug or re-evaluate if name changed dramatically
       slug = existingProfile.slug;
     } else {
       slug = await getUniqueSlug(cleanName);
@@ -212,6 +214,8 @@ router.post('/', requireAuth, async (req, res) => {
             email: cleanEmail,
             phone: cleanPhone,
             bio: bio ? String(bio).trim() : null,
+            theme: cleanTheme,
+            profileImageUrl: profileImageUrl ? String(profileImageUrl).trim() : null,
             usageType: normalizedUsageType,
             businessName,
             designation,
@@ -236,6 +240,8 @@ router.post('/', requireAuth, async (req, res) => {
             email: cleanEmail,
             phone: cleanPhone,
             bio: bio ? String(bio).trim() : null,
+            theme: cleanTheme,
+            profileImageUrl: profileImageUrl ? String(profileImageUrl).trim() : null,
             usageType: normalizedUsageType,
             businessName,
             designation,
@@ -266,7 +272,7 @@ router.post('/', requireAuth, async (req, res) => {
   }
 });
 
-// GET /api/unicard/me - Get current logged in user's UNICARD profile
+// GET /api/unicard/me - Get current logged in user's UNICARD cards/profile
 router.get('/me', requireAuth, async (req, res) => {
   try {
     const profile = await prisma.uniCardProfile.findUnique({
@@ -274,10 +280,55 @@ router.get('/me', requireAuth, async (req, res) => {
       include: { socials: true }
     });
 
-    return res.json({ profile });
+    return res.json({ profile, cards: profile ? [profile] : [] });
   } catch (err) {
     console.error('Error fetching user profile:', err);
     return res.status(500).json({ error: 'Failed to load profile.' });
+  }
+});
+
+// GET /api/unicard/cards - Authenticated cards endpoint alias
+router.get('/cards', requireAuth, async (req, res) => {
+  try {
+    const profile = await prisma.uniCardProfile.findUnique({
+      where: { userId: req.user.id },
+      include: { socials: true }
+    });
+
+    return res.json({ cards: profile ? [profile] : [] });
+  } catch (err) {
+    console.error('Error fetching user cards:', err);
+    return res.status(500).json({ error: 'Failed to load user cards.' });
+  }
+});
+
+// GET /api/unicard/cards/:id - Get specific card with ownership validation
+router.get('/cards/:id', requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const profile = await prisma.uniCardProfile.findFirst({
+      where: {
+        OR: [
+          { id: String(id) },
+          { slug: String(id).toLowerCase().trim() }
+        ]
+      },
+      include: { socials: true }
+    });
+
+    if (!profile) {
+      return res.status(404).json({ error: 'Card not found.' });
+    }
+
+    // Ownership check for protected private view
+    if (profile.userId !== req.user.id) {
+      return res.status(403).json({ error: 'Forbidden: You do not own this card.' });
+    }
+
+    return res.json({ card: profile, profile });
+  } catch (err) {
+    console.error('Error fetching card by ID:', err);
+    return res.status(500).json({ error: 'Failed to fetch card.' });
   }
 });
 
@@ -304,6 +355,8 @@ router.get('/public/:slug', async (req, res) => {
         email: profile.email,
         phone: profile.phone,
         bio: profile.bio,
+        theme: profile.theme || 'comic-theme',
+        profileImageUrl: profile.profileImageUrl,
         usageType: profile.usageType,
         businessName: profile.businessName,
         designation: profile.designation,

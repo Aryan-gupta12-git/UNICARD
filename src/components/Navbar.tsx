@@ -167,7 +167,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <div className="profile-dropdown-menu">
                   <button
                     className="profile-dropdown-item"
-                    onClick={handleViewProfileClick}
+                    disabled={true}
+                    style={{ opacity: 0.5, cursor: 'not-allowed', pointerEvents: 'none' }}
+                    onClick={(e) => e.preventDefault()}
                   >
                     <User size={15} />
                     View Profile

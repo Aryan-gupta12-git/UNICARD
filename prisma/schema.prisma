@@ -32,6 +32,8 @@ model UniCardProfile {
   email            String
   phone            String
   bio              String?
+  theme            String       @default("comic-theme")
+  profileImageUrl  String?
   usageType        UsageType
   businessName     String?
   designation      String?

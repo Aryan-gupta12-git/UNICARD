@@ -39,6 +39,7 @@ app.use(cookieParser());
 // Auth & UNICARD routes
 app.use('/api/auth', authRoutes);
 app.use('/api/unicard', unicardRoutes);
+app.use('/api/cards', unicardRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

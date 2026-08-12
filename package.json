@@ -8,6 +8,7 @@
     "server": "node server/index.js",
     "client": "vite",
     "build": "tsc -b && vite build",
+    "postinstall": "prisma generate",
     "lint": "oxlint",
     "preview": "vite preview"
   },

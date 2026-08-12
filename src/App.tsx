@@ -241,7 +241,10 @@ const MainAppContent: React.FC = () => {
       )}
 
       {view === 'saved-cards' && (
-        <SavedCards />
+        <SavedCards
+          onViewCard={handleViewPublicCard}
+          onCreateCard={() => setView('onboarding')}
+        />
       )}
 
       {view === 'analytics' && (

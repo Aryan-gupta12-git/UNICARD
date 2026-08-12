@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './Home.css';
 
 interface HomeProps {
@@ -15,34 +15,6 @@ interface Article {
   author: string;
   time: string;
 }
-
-interface UserCardItem {
-  name: string;
-  email: string;
-  businessName: string;
-  theme?: 'comic-theme' | 'pink-pop-theme' | 'pink-theme';
-}
-
-const HARDCODED_CARDS: UserCardItem[] = [
-  {
-    name: "Misti Sharma",
-    email: "misti@unicard.app",
-    businessName: "Design Studio",
-    theme: "pink-pop-theme"
-  },
-  {
-    name: "Alex Morgan",
-    email: "alex.morgan@techlabs.io",
-    businessName: "Nexus Tech Labs",
-    theme: "comic-theme"
-  },
-  {
-    name: "Jordan Lee",
-    email: "jordan@creators.co",
-    businessName: "Creative Studio",
-    theme: "comic-theme"
-  }
-];
 
 const ARTICLES: Article[] = [
   {
@@ -79,15 +51,46 @@ const ARTICLES: Article[] = [
 
 export const Home: React.FC<HomeProps> = ({
   userName = 'User',
-  profile = null,
+  profile: initialProfile = null,
+  onViewCard,
   onEditDetails,
   onCreateCard
 }) => {
-  // Extract user's real first name dynamically
+  const [userCards, setUserCards] = useState<any[]>(initialProfile ? [initialProfile] : []);
+  const [loading, setLoading] = useState<boolean>(!initialProfile);
+
   const firstName = userName.trim().split(' ')[0] || 'User';
 
+  useEffect(() => {
+    const fetchUserCards = async () => {
+      try {
+        const res = await fetch('/api/unicard/me', { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.profile) {
+            setUserCards([data.profile]);
+          } else if (Array.isArray(data.cards)) {
+            setUserCards(data.cards);
+          }
+        }
+      } catch (err) {
+        console.error('Fetch user cards error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserCards();
+  }, [initialProfile]);
+
+  const handleCardClick = (slugOrId: string) => {
+    if (onViewCard) {
+      onViewCard(slugOrId);
+    }
+  };
+
   const handleCreateClick = () => {
-    if (profile) {
+    if (userCards.length > 0) {
       onEditDetails();
     } else {
       onCreateCard();
@@ -100,10 +103,12 @@ export const Home: React.FC<HomeProps> = ({
         {/* Top Welcome Header */}
         <header className="home-header">
           <h1 className="home-title">Welcome back, {firstName}.</h1>
-          <p className="home-subheading">Let's make your first card</p>
+          <p className="home-subheading">
+            {userCards.length > 0 ? "Manage your UNICARD digital identity" : "Let's make your first card"}
+          </p>
           <div className="home-action-wrapper">
             <button className="btn btn-primary" onClick={handleCreateClick}>
-              Create
+              {userCards.length > 0 ? "Edit Card" : "Create"}
             </button>
           </div>
         </header>
@@ -111,23 +116,45 @@ export const Home: React.FC<HomeProps> = ({
         {/* User Cards Section */}
         <section className="home-cards-section">
           <h2 className="articles-heading">Saved Cards</h2>
-          <div className="cards-grid">
-            {HARDCODED_CARDS.map((card, idx) => {
-              const themeClass = card.theme === 'pink-theme' ? 'pink-pop-theme' : (card.theme || 'comic-theme');
-              return (
-                <div key={idx} className={`card-box ${themeClass}`}>
-                  <div className="card-box-main">
-                    <h3 className="card-user-name">{card.name}</h3>
-                    <p className="card-user-email">{card.email}</p>
+
+          {loading ? (
+            <p style={{ color: 'var(--text-secondary)', padding: '24px 0' }}>Loading your cards...</p>
+          ) : userCards.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 24px', backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
+              <h3 style={{ fontSize: '20px', fontFamily: 'var(--font-serif)', color: '#0F1E36', marginBottom: '8px' }}>
+                No cards created yet
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
+                Create your first digital card to share your contact identity effortlessly.
+              </p>
+              <button className="btn btn-primary" onClick={onCreateCard}>
+                Create Card Now
+              </button>
+            </div>
+          ) : (
+            <div className="cards-grid">
+              {userCards.map((card, idx) => {
+                const themeClass = card.theme === 'pink-theme' ? 'pink-pop-theme' : (card.theme || 'comic-theme');
+                return (
+                  <div
+                    key={card.id || idx}
+                    className={`card-box ${themeClass}`}
+                    onClick={() => handleCardClick(card.slug || card.id)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div className="card-box-main">
+                      <h3 className="card-user-name">{card.name}</h3>
+                      <p className="card-user-email">{card.email}</p>
+                    </div>
+                    <div className="card-meta-row">
+                      <span className="card-business-label">BUSINESS</span>
+                      <span className="card-business-name">{card.businessName || 'UNICARD'}</span>
+                    </div>
                   </div>
-                  <div className="card-meta-row">
-                    <span className="card-business-label">BUSINESS</span>
-                    <span className="card-business-name">{card.businessName}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         {/* Featured Articles Section */}
