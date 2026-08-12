@@ -46,6 +46,12 @@ const getInitialView = (): AppView => {
   if (path.match(/^\/(?:c|u)\/([^/]+)/)) {
     return 'public-card';
   }
+
+  const pathRoute = path.replace(/^\//, '');
+  if (['home', 'my-cards', 'saved-cards', 'analytics'].includes(pathRoute)) {
+    return pathRoute as AppView;
+  }
+
   const hash = window.location.hash.replace('#', '');
   if (['home', 'my-cards', 'saved-cards', 'analytics'].includes(hash)) {
     return hash as AppView;
@@ -54,7 +60,7 @@ const getInitialView = (): AppView => {
   if (stored && ['home', 'my-cards', 'saved-cards', 'analytics'].includes(stored)) {
     return stored as AppView;
   }
-  return 'home';
+  return 'landing';
 };
 
 const MainAppContent: React.FC = () => {
@@ -73,12 +79,25 @@ const MainAppContent: React.FC = () => {
   };
   const { isAuthenticated, isLoading, user } = useAuth();
 
+  const handleLogout = () => {
+    sessionStorage.removeItem('unicard_active_view');
+    if (window.location.pathname !== '/' || window.location.hash) {
+      window.history.replaceState(null, '', '/');
+    }
+    setView('landing');
+  };
+
   // Sync active app view route to hash and sessionStorage
   useEffect(() => {
     if (['home', 'my-cards', 'saved-cards', 'analytics'].includes(view)) {
       sessionStorage.setItem('unicard_active_view', view);
       if (window.location.hash !== `#${view}`) {
         window.history.replaceState(null, '', `#${view}`);
+      }
+    } else if (view === 'landing' || view === 'signin' || view === 'signup' || view === 'forgot-password') {
+      sessionStorage.removeItem('unicard_active_view');
+      if (window.location.pathname !== '/' || window.location.hash) {
+        window.history.replaceState(null, '', '/');
       }
     }
     if (view !== 'public-card') {
@@ -172,7 +191,14 @@ const MainAppContent: React.FC = () => {
       } else {
         setUserProfile(null);
         setIsProfileChecking(false);
-        setView((prev) => (prev === 'public-card' ? 'public-card' : 'landing'));
+        const isPublicRoute = view === 'public-card' || Boolean(window.location.pathname.match(/^\/(?:c|u)\//));
+        if (!isPublicRoute) {
+          sessionStorage.removeItem('unicard_active_view');
+          if (window.location.pathname !== '/' || window.location.hash) {
+            window.history.replaceState(null, '', '/');
+          }
+          setView('landing');
+        }
       }
     };
 
@@ -253,7 +279,7 @@ const MainAppContent: React.FC = () => {
           activeView={view}
           onNavigateView={(v) => setView(v as AppView)}
           onLoginClick={() => setView('signin')}
-          onLogoutSuccess={() => setView('landing')}
+          onLogoutSuccess={handleLogout}
           isTypewriterActive={isTypewriterActive}
         />
         <div className="auth-product-page">
@@ -347,7 +373,7 @@ const MainAppContent: React.FC = () => {
         activeView={view}
         onNavigateView={(v) => setView(v as AppView)}
         onLoginClick={() => setView('signin')}
-        onLogoutSuccess={() => setView('landing')}
+        onLogoutSuccess={handleLogout}
         isTypewriterActive={isTypewriterActive}
       />
 
