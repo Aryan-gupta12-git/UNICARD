@@ -33,10 +33,11 @@ const isValidEmail = (email) => {
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, confirmPassword } = req.body;
+    const { name, email, password } = req.body;
+    const confirmPassword = req.body.confirmPassword || password;
 
     // Field validation
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !email || !password) {
       return res.status(400).json({ error: 'All fields are required.' });
     }
 
