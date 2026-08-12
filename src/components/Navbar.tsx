@@ -137,14 +137,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           <a href="#" className="navbar-logo" onClick={(e) => e.preventDefault()}>
             UNICARD
           </a>
+          <nav className="navbar-links" style={{ opacity: 0.4 }}>
+            <div className="skeleton-pulse" style={{ width: '48px', height: '14px', borderRadius: '4px' }} />
+            <div className="skeleton-pulse" style={{ width: '64px', height: '14px', borderRadius: '4px' }} />
+            <div className="skeleton-pulse" style={{ width: '80px', height: '14px', borderRadius: '4px' }} />
+          </nav>
           <div className="navbar-actions">
             <div
               className="skeleton-pulse"
               style={{
-                width: '100px',
-                height: '36px',
-                borderRadius: '9999px',
-                backgroundColor: '#F0F3F7'
+                width: '130px',
+                height: '40px',
+                borderRadius: '9999px'
               }}
             />
           </div>

@@ -28,8 +28,25 @@ type AppView =
   | 'public-card'
   | 'view-card';
 
+const getInitialView = (): AppView => {
+  if (typeof window === 'undefined') return 'landing';
+  const path = window.location.pathname;
+  if (path.match(/^\/(?:c|u)\/([^/]+)/)) {
+    return 'public-card';
+  }
+  const hash = window.location.hash.replace('#', '');
+  if (['home', 'my-cards', 'saved-cards', 'analytics'].includes(hash)) {
+    return hash as AppView;
+  }
+  const stored = sessionStorage.getItem('unicard_active_view');
+  if (stored && ['home', 'my-cards', 'saved-cards', 'analytics'].includes(stored)) {
+    return stored as AppView;
+  }
+  return 'home';
+};
+
 const MainAppContent: React.FC = () => {
-  const [view, setView] = useState<AppView>('landing');
+  const [view, setView] = useState<AppView>(getInitialView);
   const [publicSlug, setPublicSlug] = useState<string>('');
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [cardOriginView, setCardOriginView] = useState<AppView>('home');
@@ -43,6 +60,16 @@ const MainAppContent: React.FC = () => {
     setSavedCardsRefreshKey((prev) => prev + 1);
   };
   const { isAuthenticated, isLoading, user } = useAuth();
+
+  // Sync active app view route to hash and sessionStorage
+  useEffect(() => {
+    if (['home', 'my-cards', 'saved-cards', 'analytics'].includes(view)) {
+      sessionStorage.setItem('unicard_active_view', view);
+      if (window.location.hash !== `#${view}`) {
+        window.history.replaceState(null, '', `#${view}`);
+      }
+    }
+  }, [view]);
 
   // Toggle is-typewriter-active class on body to disable UI buttons when story is playing
   useEffect(() => {
@@ -105,7 +132,7 @@ const MainAppContent: React.FC = () => {
 
             await processPendingSaveCard();
             const isPublicRoute = view === 'public-card' || Boolean(window.location.pathname.match(/^\/(?:c|u)\//));
-            if (!isPublicRoute) {
+            if (!isPublicRoute && view === 'landing') {
               setView('home');
             }
           }
@@ -201,41 +228,44 @@ const MainAppContent: React.FC = () => {
           onLogoutSuccess={() => setView('landing')}
           isTypewriterActive={isTypewriterActive}
         />
-        <div className="home-container" style={{ marginTop: '20px' }}>
+        <div className="home-container">
           {/* Welcome Header Skeleton */}
-          <header className="home-header" style={{ marginBottom: '40px' }}>
-            <div
-              className="skeleton-pulse"
-              style={{
-                width: 'min(320px, 80%)',
-                height: '42px',
-                borderRadius: '12px',
-                marginBottom: '16px'
-              }}
-            />
-            <div
-              className="skeleton-pulse"
-              style={{
-                width: '120px',
-                height: '44px',
-                borderRadius: '9999px',
-                marginTop: '16px'
-              }}
-            />
+          <header className="home-header">
+            <h1 className="home-title">
+              <div
+                className="skeleton-pulse"
+                style={{
+                  width: 'min(320px, 80%)',
+                  height: '42px',
+                  borderRadius: '12px'
+                }}
+              />
+            </h1>
+            <div className="home-action-wrapper">
+              <div
+                className="skeleton-pulse"
+                style={{
+                  width: '120px',
+                  height: '44px',
+                  borderRadius: '9999px'
+                }}
+              />
+            </div>
           </header>
 
           {/* Saved Cards Section Skeleton */}
-          <section className="home-cards-section" style={{ marginTop: '36px', paddingTop: '36px', borderTop: '1px solid var(--border-subtle)' }}>
-            <div
-              className="skeleton-pulse"
-              style={{
-                width: '140px',
-                height: '24px',
-                borderRadius: '6px',
-                marginBottom: '20px'
-              }}
-            />
-            <div className="cards-grid" style={{ marginTop: '0' }}>
+          <section className="home-cards-section">
+            <h2 className="home-section-title">
+              <div
+                className="skeleton-pulse"
+                style={{
+                  width: '140px',
+                  height: '24px',
+                  borderRadius: '6px'
+                }}
+              />
+            </h2>
+            <div className="cards-grid">
               {[1, 2, 3].map((item) => (
                 <div
                   key={item}
@@ -243,7 +273,7 @@ const MainAppContent: React.FC = () => {
                   style={{
                     height: '220px',
                     borderRadius: '16px',
-                    border: '1px solid var(--border-subtle)'
+                    border: 'none'
                   }}
                 />
               ))}
@@ -251,16 +281,17 @@ const MainAppContent: React.FC = () => {
           </section>
 
           {/* Featured Articles Section Skeleton */}
-          <section className="home-articles-section" style={{ marginTop: '48px', paddingTop: '36px', borderTop: '1px solid var(--border-subtle)' }}>
-            <div
-              className="skeleton-pulse"
-              style={{
-                width: '160px',
-                height: '24px',
-                borderRadius: '6px',
-                marginBottom: '20px'
-              }}
-            />
+          <section className="home-articles-section">
+            <h2 className="home-section-title articles-heading">
+              <div
+                className="skeleton-pulse"
+                style={{
+                  width: '160px',
+                  height: '24px',
+                  borderRadius: '6px'
+                }}
+              />
+            </h2>
             <div className="articles-grid">
               {[1, 2, 3].map((item) => (
                 <div
@@ -269,7 +300,7 @@ const MainAppContent: React.FC = () => {
                   style={{
                     height: '220px',
                     borderRadius: '16px',
-                    border: '1px solid var(--border-subtle)'
+                    border: 'none'
                   }}
                 />
               ))}
