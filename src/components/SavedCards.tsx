@@ -131,9 +131,9 @@ export const SavedCards: React.FC<SavedCardsProps> = ({
               const themeClass = card.theme === 'pink-theme' ? 'pink-pop-theme' : (card.theme || 'comic-theme');
               const isPersonal = String(card.usageType || '').toUpperCase() === 'PERSONAL';
               const metaLabel = isPersonal ? 'PROFESSION' : 'BUSINESS';
-              const cardProfession = card.designation || card.profession || '';
+              const cardProfession = card.designation || card.profession || 'MEMBER';
               const cardBusiness = card.businessName || '';
-              const metaValue = isPersonal ? cardProfession : (cardBusiness || cardProfession || '');
+              const metaValue = isPersonal ? cardProfession : (cardBusiness || cardProfession || 'BUSINESS');
 
               return (
                 <div
@@ -159,12 +159,10 @@ export const SavedCards: React.FC<SavedCardsProps> = ({
                       {themeClass === 'spider-comic-theme' ? renderSpiderComicName(card.name) : card.name}
                     </h3>
                   </div>
-                  {(metaValue || !isPersonal) && (
-                    <div className="card-meta-row">
-                      <span className="card-business-label">{metaLabel}</span>
-                      <span className="card-business-name">{metaValue}</span>
-                    </div>
-                  )}
+                  <div className="card-meta-row">
+                    <span className="card-business-label">{metaLabel}</span>
+                    <span className="card-business-name">{metaValue}</span>
+                  </div>
                 </div>
               );
             })}

@@ -182,8 +182,8 @@ export const PublicCard: React.FC<PublicCardProps> = ({
   const isPersonal = String(profile.usageType || '').toUpperCase() === 'PERSONAL';
   const metaLabel = isPersonal ? 'PROFESSION' : 'BUSINESS';
   const metaValue = isPersonal
-    ? (profile.designation || profile.businessName || '')
-    : (profile.businessName || '');
+    ? (profile.designation || profile.profession || 'MEMBER')
+    : (profile.businessName || profile.designation || 'BUSINESS');
 
   return (
     <div className="auth-product-page" style={{ minHeight: 'calc(100vh - var(--navbar-height))' }}>
@@ -195,12 +195,10 @@ export const PublicCard: React.FC<PublicCardProps> = ({
               {themeClass === 'spider-comic-theme' ? renderSpiderComicName(profile.name) : profile.name}
             </h3>
           </div>
-          {(metaValue || !isPersonal) && (
-            <div className="card-meta-row">
-              <span className="card-business-label">{metaLabel}</span>
-              <span className="card-business-name">{metaValue}</span>
-            </div>
-          )}
+          <div className="card-meta-row">
+            <span className="card-business-label">{metaLabel}</span>
+            <span className="card-business-name">{metaValue}</span>
+          </div>
         </div>
 
         {/* Feedback message banner if any */}

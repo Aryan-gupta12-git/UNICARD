@@ -371,7 +371,7 @@
   background-repeat: no-repeat;
   overflow: hidden;
   border: none;
-  box-shadow: 0 8px 24px rgba(229, 37, 42, 0.25);
+  box-shadow: 0 8px 24px rgba(17, 17, 17, 0.15);
   padding: 0;
   cursor: pointer;
 }
@@ -439,9 +439,10 @@
   align-items: center;
   justify-content: space-between;
   border-top: none;
-  background: transparent;
+  background-color: #FFFDF5;
   margin: 0;
   transform: translateY(6px);
+  z-index: 5;
 }
 
 .card-box.spider-comic-theme .card-business-label,
