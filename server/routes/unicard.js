@@ -410,7 +410,7 @@ router.get('/cards', requireAuth, async (req, res) => {
   }
 });
 
-// GET /api/unicard/cards/:id or /api/cards/:id - Get specific card by ID with ownership check
+// GET /api/unicard/cards/:id or /api/cards/:id - Get specific card by ID
 router.get('/cards/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
@@ -428,11 +428,8 @@ router.get('/cards/:id', requireAuth, async (req, res) => {
       return res.status(404).json({ error: 'Card not found.' });
     }
 
-    if (card.userId !== req.user.id) {
-      return res.status(403).json({ error: 'Forbidden: You do not own this card.' });
-    }
-
-    return res.json({ card, profile: card });
+    const isOwner = card.userId === req.user.id;
+    return res.json({ card, profile: card, isOwner, isReadOnly: !isOwner });
   } catch (err) {
     console.error('Error fetching card by ID:', err);
     return res.status(500).json({ error: 'Failed to fetch card.' });

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import './Home.css';
 
 interface HomeProps {
@@ -54,9 +55,11 @@ export const Home: React.FC<HomeProps> = ({
   profile: initialProfile = null,
   onCreateCard
 }) => {
+  const { user } = useAuth();
   const [userCards, setUserCards] = useState<any[]>(initialProfile ? [initialProfile] : []);
 
-  const firstName = userName.trim().split(' ')[0] || 'User';
+  const nameToUse = (userName && userName !== 'User') ? userName : (user?.name || 'User');
+  const firstName = nameToUse.trim().split(' ')[0] || 'User';
 
   useEffect(() => {
     const fetchUserCards = async () => {

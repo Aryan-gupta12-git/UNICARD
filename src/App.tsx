@@ -22,6 +22,7 @@ type AppView =
   | 'forgot-password'
   | 'onboarding'
   | 'home'
+  | 'my-cards'
   | 'saved-cards'
   | 'analytics'
   | 'public-card'
@@ -35,7 +36,7 @@ const MainAppContent: React.FC = () => {
   const [isReadOnlyCardView, setIsReadOnlyCardView] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<any | null>(null);
   const [isProfileChecking, setIsProfileChecking] = useState<boolean>(true);
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   // Check URL pathname for /c/:slug or /u/:slug on mount
   useEffect(() => {
@@ -245,23 +246,32 @@ const MainAppContent: React.FC = () => {
           editingCardId={editingCardId}
           onClose={async () => {
             await handleRefreshProfile();
-            setView('saved-cards');
+            setView('my-cards');
           }}
         />
       )}
 
       {view === 'home' && (
         <Home
+          userName={user?.name}
           profile={userProfile}
           onViewCard={(slug) => handleViewCard(slug, 'home', false)}
           onCreateCard={handleCreateNewCard}
         />
       )}
 
-      {view === 'saved-cards' && (
+      {view === 'my-cards' && (
         <SavedCards
           mode="my-cards"
-          onViewCard={(slug) => handleViewCard(slug, 'saved-cards', false)}
+          onViewCard={(slug) => handleViewCard(slug, 'my-cards', false)}
+          onCreateCard={handleCreateNewCard}
+        />
+      )}
+
+      {view === 'saved-cards' && (
+        <SavedCards
+          mode="saved-cards"
+          onViewCard={(slug) => handleViewCard(slug, 'saved-cards', true)}
           onCreateCard={handleCreateNewCard}
         />
       )}

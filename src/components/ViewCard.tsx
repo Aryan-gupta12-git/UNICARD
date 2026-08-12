@@ -22,6 +22,7 @@ export const ViewCard: React.FC<ViewCardProps> = ({
   const [profileData, setProfileData] = useState<any | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
   const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(true);
+  const [fetchedReadOnly, setFetchedReadOnly] = useState<boolean>(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Fetch card data directly using the target card ID / slug
@@ -34,6 +35,7 @@ export const ViewCard: React.FC<ViewCardProps> = ({
 
       setProfileData(null);
       setIsLoadingProfile(true);
+      setFetchedReadOnly(false);
 
       try {
         // Fetch specific card from protected cards endpoint
@@ -42,6 +44,7 @@ export const ViewCard: React.FC<ViewCardProps> = ({
           const data = await res.json();
           if (data.card || data.profile) {
             setProfileData(data.card || data.profile);
+            setFetchedReadOnly(Boolean(data.isReadOnly));
             return;
           }
         }
@@ -51,6 +54,7 @@ export const ViewCard: React.FC<ViewCardProps> = ({
         if (res.ok) {
           const data = await res.json();
           setProfileData(data.profile || null);
+          setFetchedReadOnly(true);
         }
       } catch (err) {
         console.error('Failed to fetch card by ID for view:', err);
@@ -62,6 +66,7 @@ export const ViewCard: React.FC<ViewCardProps> = ({
     fetchSpecificCardData();
   }, [initialSlug]);
 
+  const effectiveReadOnly = isReadOnly || fetchedReadOnly;
   const cardSlug = profileData?.slug || initialSlug || 'user';
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const fullUrl = `${origin}/c/${cardSlug}`;
@@ -194,7 +199,7 @@ export const ViewCard: React.FC<ViewCardProps> = ({
             </div>
 
             {/* Action Buttons */}
-            {isReadOnly ? (
+            {effectiveReadOnly ? (
               <div className="view-card-qr-actions">
                 <button
                   type="button"
