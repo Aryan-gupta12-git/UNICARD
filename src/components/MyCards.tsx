@@ -17,9 +17,11 @@ export const MyCards: React.FC<MyCardsProps> = ({
 }) => {
   const [copied, setCopied] = useState(false);
 
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+
   const handleCopyLink = () => {
     if (profile?.slug) {
-      navigator.clipboard.writeText(`https://unicard.app/u/${profile.slug}`);
+      navigator.clipboard.writeText(`${origin}/c/${profile.slug}`);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }

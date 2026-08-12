@@ -63,8 +63,8 @@ export const ViewCard: React.FC<ViewCardProps> = ({
   }, [initialSlug]);
 
   const cardSlug = profileData?.slug || initialSlug || 'user';
-  const publicUrl = `unicard.app/u/${cardSlug}`;
-  const fullUrl = `https://${publicUrl}`;
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const fullUrl = `${origin}/c/${cardSlug}`;
 
   // Download QR code as PNG image fully on frontend
   const handleDownloadQR = () => {
