@@ -30,6 +30,18 @@ type AppView =
 
 const getInitialView = (): AppView => {
   if (typeof window === 'undefined') return 'landing';
+
+  // If card was saved successfully, take user to home page on refresh
+  const redirectOnRefresh = sessionStorage.getItem('unicard_saved_card_refresh_redirect');
+  if (redirectOnRefresh === 'true') {
+    sessionStorage.removeItem('unicard_saved_card_refresh_redirect');
+    if (window.location.pathname !== '/' || window.location.hash) {
+      window.history.replaceState(null, '', '/#home');
+    }
+    sessionStorage.setItem('unicard_active_view', 'home');
+    return 'home';
+  }
+
   const path = window.location.pathname;
   if (path.match(/^\/(?:c|u)\/([^/]+)/)) {
     return 'public-card';
@@ -69,6 +81,9 @@ const MainAppContent: React.FC = () => {
         window.history.replaceState(null, '', `#${view}`);
       }
     }
+    if (view !== 'public-card') {
+      sessionStorage.removeItem('unicard_saved_card_refresh_redirect');
+    }
   }, [view]);
 
   // Toggle is-typewriter-active class on body to disable UI buttons when story is playing
@@ -85,6 +100,16 @@ const MainAppContent: React.FC = () => {
 
   // Check URL pathname for /c/:slug or /u/:slug on mount
   useEffect(() => {
+    const redirectOnRefresh = sessionStorage.getItem('unicard_saved_card_refresh_redirect');
+    if (redirectOnRefresh === 'true') {
+      sessionStorage.removeItem('unicard_saved_card_refresh_redirect');
+      if (window.location.pathname !== '/' || window.location.hash) {
+        window.history.replaceState(null, '', '/#home');
+      }
+      setView('home');
+      return;
+    }
+
     const path = window.location.pathname;
     const match = path.match(/^\/(?:c|u)\/([^/]+)/);
     if (match && match[1]) {
@@ -98,10 +123,13 @@ const MainAppContent: React.FC = () => {
     const pendingSlug = sessionStorage.getItem('pending_save_slug');
     if (pendingSlug) {
       try {
-        await fetch(`/api/unicard/saved-cards/${pendingSlug}`, {
+        const res = await fetch(`/api/unicard/saved-cards/${pendingSlug}`, {
           method: 'POST',
           credentials: 'include'
         });
+        if (res.ok) {
+          sessionStorage.setItem('unicard_saved_card_refresh_redirect', 'true');
+        }
         handleSavedCardAdded();
       } catch (err) {
         console.error('Pending save card error:', err);

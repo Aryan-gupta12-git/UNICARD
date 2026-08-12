@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { UserPlus, Download, Check } from 'lucide-react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import { renderSpiderComicName } from '../utils/themeHelpers';
+import { renderThemeName } from '../utils/themeHelpers';
 import './Auth/Auth.css';
 import './Home.css';
 
@@ -125,6 +125,7 @@ export const PublicCard: React.FC<PublicCardProps> = ({
       if (res.ok || (data.error && data.error.toLowerCase().includes('already saved'))) {
         setSaveSuccess(true);
         setSaveMessage(res.ok ? 'Card saved to your account!' : 'Card already saved in your account.');
+        sessionStorage.setItem('unicard_saved_card_refresh_redirect', 'true');
         if (onCardSaved) onCardSaved();
       } else {
         setSaveMessage(data.error || 'Failed to save card.');
@@ -192,7 +193,7 @@ export const PublicCard: React.FC<PublicCardProps> = ({
         <div className={`card-box ${themeClass}`} style={{ width: '100%', marginBottom: '28px', cursor: 'default' }}>
           <div className="card-box-main">
             <h3 className="card-user-name">
-              {themeClass === 'spider-comic-theme' ? renderSpiderComicName(profile.name) : profile.name}
+              {renderThemeName(profile.name, themeClass)}
             </h3>
           </div>
           <div className="card-meta-row">

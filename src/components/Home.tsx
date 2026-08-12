@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { renderSpiderComicName } from '../utils/themeHelpers';
+import { renderThemeName } from '../utils/themeHelpers';
 import './Home.css';
 
 interface HomeProps {
@@ -186,7 +186,7 @@ export const Home: React.FC<HomeProps> = ({
                   >
                     <div className="card-box-main">
                       <h3 className="card-user-name">
-                        {themeClass === 'spider-comic-theme' ? renderSpiderComicName(card.name) : card.name}
+                        {renderThemeName(card.name, themeClass)}
                       </h3>
                     </div>
                     <div className="card-meta-row">

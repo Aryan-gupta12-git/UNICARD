@@ -275,15 +275,13 @@
 .card.pink-pop-theme .card-user-name,
 .card.pink-theme .card-user-name {
   position: absolute;
-  top: 40%;
+  top: 35%;
   left: 50%;
   transform: translateX(-50%) rotate(-4deg);
-  width: 84%;
+  width: 88%;
   text-align: center;
   font-family: "Bangers", cursive, sans-serif;
-  font-size: 38px;
   font-weight: 400;
-  line-height: 0.95;
   letter-spacing: 0.025em;
   text-transform: uppercase;
   background: linear-gradient(
@@ -299,9 +297,78 @@
     drop-shadow(2px 3px 0 #A91458)
     drop-shadow(4px 5px 0 #111111);
   margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow: visible;
+}
+
+/* Barbie Theme Stacked First & Last Name Layout */
+.card-box.pink-pop-theme .barbie-name-stacked,
+.card-box.pink-theme .barbie-name-stacked,
+.card.pink-pop-theme .barbie-name-stacked,
+.card.pink-theme .barbie-name-stacked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.card-box.pink-pop-theme .barbie-name-first,
+.card-box.pink-theme .barbie-name-first,
+.card.pink-pop-theme .barbie-name-first,
+.card.pink-theme .barbie-name-first {
+  display: block;
+  font-size: clamp(24px, 5.2vw, 36px);
+  line-height: 0.9;
+  width: 100%;
+  text-align: center;
+  word-break: break-word;
+}
+
+.card-box.pink-pop-theme .barbie-name-rest,
+.card-box.pink-theme .barbie-name-rest,
+.card.pink-pop-theme .barbie-name-rest,
+.card.pink-theme .barbie-name-rest {
+  display: block;
+  font-size: clamp(20px, 4.2vw, 28px);
+  line-height: 0.9;
+  width: 100%;
+  text-align: center;
+  margin-top: 1px;
+  word-break: break-word;
+}
+
+.card-box.pink-pop-theme .barbie-name-single,
+.card-box.pink-theme .barbie-name-single,
+.card.pink-pop-theme .barbie-name-single,
+.card.pink-theme .barbie-name-single {
+  display: block;
+  font-size: clamp(26px, 5.8vw, 38px);
+  line-height: 0.95;
+  width: 100%;
+  text-align: center;
+}
+
+/* Modifiers for long words */
+.card-box.pink-pop-theme .barbie-name-first.is-long,
+.card-box.pink-theme .barbie-name-first.is-long,
+.card.pink-pop-theme .barbie-name-first.is-long,
+.card.pink-theme .barbie-name-first.is-long {
+  font-size: clamp(20px, 4.2vw, 28px);
+}
+
+.card-box.pink-pop-theme .barbie-name-rest.is-long,
+.card-box.pink-theme .barbie-name-rest.is-long,
+.card.pink-pop-theme .barbie-name-rest.is-long,
+.card.pink-theme .barbie-name-rest.is-long {
+  font-size: clamp(17px, 3.6vw, 23px);
+}
+
+.card-box.pink-pop-theme .barbie-name-single.is-long,
+.card-box.pink-theme .barbie-name-single.is-long,
+.card.pink-pop-theme .barbie-name-single.is-long,
+.card.pink-theme .barbie-name-single.is-long {
+  font-size: clamp(22px, 4.5vw, 30px);
 }
 
 /* User Email - Hidden per requirements */
