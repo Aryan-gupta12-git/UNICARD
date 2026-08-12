@@ -90,9 +90,10 @@ const MainAppContent: React.FC = () => {
               setUserProfile(null);
             }
 
-            const savedPending = await processPendingSaveCard();
-            if (!savedPending) {
-              setView((prev) => (prev === 'landing' || prev === 'signin' || prev === 'signup' ? 'home' : prev));
+            await processPendingSaveCard();
+            const isPublicRoute = view === 'public-card' || Boolean(window.location.pathname.match(/^\/(?:c|u)\//));
+            if (!isPublicRoute) {
+              setView('home');
             }
           }
         } catch (err) {

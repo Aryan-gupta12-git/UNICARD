@@ -24,8 +24,38 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [navbarHidden, setNavbarHidden] = useState(false);
+  const prevScrollY = useRef(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { user, isAuthenticated, logout } = useAuth();
+
+  // Handle mobile scroll hide/show with menu override
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerWidth > 768 || mobileMenuOpen || dropdownOpen) {
+        setNavbarHidden(false);
+        return;
+      }
+
+      const currentScrollY = window.scrollY;
+      const scrollDelta = currentScrollY - prevScrollY.current;
+
+      if (currentScrollY < 20) {
+        setNavbarHidden(false);
+      } else if (scrollDelta > 8) {
+        setNavbarHidden(true);
+      } else if (scrollDelta < -8) {
+        setNavbarHidden(false);
+      }
+
+      prevScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [mobileMenuOpen, dropdownOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -97,7 +127,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="navbar">
+    <header className={`navbar ${navbarHidden ? 'is-hidden-mobile' : ''}`}>
       <div className="container navbar-container">
         {/* Left: Editorial Wordmark */}
         <a href="#" className={`navbar-logo ${isTypewriterActive ? 'is-disabled-nav' : ''}`} onClick={handleLogoClick}>
