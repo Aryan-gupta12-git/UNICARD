@@ -220,7 +220,7 @@ const MainAppContent: React.FC = () => {
 
   if (isLoading || (isAuthenticated && isProfileChecking && view !== 'public-card')) {
     return (
-      <div className="auth-product-page">
+      <div className="app">
         <Navbar
           activeView={view}
           onNavigateView={(v) => setView(v as AppView)}
@@ -228,84 +228,86 @@ const MainAppContent: React.FC = () => {
           onLogoutSuccess={() => setView('landing')}
           isTypewriterActive={isTypewriterActive}
         />
-        <div className="home-container">
-          {/* Welcome Header Skeleton */}
-          <header className="home-header">
-            <h1 className="home-title">
-              <div
-                className="skeleton-pulse"
-                style={{
-                  width: 'min(320px, 80%)',
-                  height: '42px',
-                  borderRadius: '12px'
-                }}
-              />
-            </h1>
-            <div className="home-action-wrapper">
-              <div
-                className="skeleton-pulse"
-                style={{
-                  width: '120px',
-                  height: '44px',
-                  borderRadius: '9999px'
-                }}
-              />
-            </div>
-          </header>
-
-          {/* Saved Cards Section Skeleton */}
-          <section className="home-cards-section">
-            <h2 className="home-section-title">
-              <div
-                className="skeleton-pulse"
-                style={{
-                  width: '140px',
-                  height: '24px',
-                  borderRadius: '6px'
-                }}
-              />
-            </h2>
-            <div className="cards-grid">
-              {[1, 2, 3].map((item) => (
+        <div className="auth-product-page">
+          <div className="home-container">
+            {/* Welcome Header Skeleton */}
+            <header className="home-header">
+              <h1 className="home-title">
                 <div
-                  key={item}
-                  className="card-box skeleton-pulse"
+                  className="skeleton-pulse"
                   style={{
-                    height: '220px',
-                    borderRadius: '16px',
-                    border: 'none'
+                    width: 'min(320px, 80%)',
+                    height: '42px',
+                    borderRadius: '12px'
                   }}
                 />
-              ))}
-            </div>
-          </section>
-
-          {/* Featured Articles Section Skeleton */}
-          <section className="home-articles-section">
-            <h2 className="home-section-title articles-heading">
-              <div
-                className="skeleton-pulse"
-                style={{
-                  width: '160px',
-                  height: '24px',
-                  borderRadius: '6px'
-                }}
-              />
-            </h2>
-            <div className="articles-grid">
-              {[1, 2, 3].map((item) => (
+              </h1>
+              <div className="home-action-wrapper">
                 <div
-                  key={item}
-                  className="article-box skeleton-pulse"
+                  className="skeleton-pulse"
                   style={{
-                    height: '220px',
-                    borderRadius: '16px',
-                    border: 'none'
+                    width: '120px',
+                    height: '44px',
+                    borderRadius: '9999px'
                   }}
                 />
-              ))}
-            </div>
-          </section>
+              </div>
+            </header>
+
+            {/* Saved Cards Section Skeleton */}
+            <section className="home-cards-section">
+              <h2 className="home-section-title">
+                <div
+                  className="skeleton-pulse"
+                  style={{
+                    width: '140px',
+                    height: '24px',
+                    borderRadius: '6px'
+                  }}
+                />
+              </h2>
+              <div className="cards-grid">
+                {[1, 2, 3].map((item) => (
+                  <div
+                    key={item}
+                    className="card-box skeleton-pulse"
+                    style={{
+                      height: '220px',
+                      borderRadius: '16px',
+                      border: 'none'
+                    }}
+                  />
+                ))}
+              </div>
+            </section>
+
+            {/* Featured Articles Section Skeleton */}
+            <section className="home-articles-section">
+              <h2 className="home-section-title articles-heading">
+                <div
+                  className="skeleton-pulse"
+                  style={{
+                    width: '160px',
+                    height: '24px',
+                    borderRadius: '6px'
+                  }}
+                />
+              </h2>
+              <div className="articles-grid">
+                {[1, 2, 3].map((item) => (
+                  <div
+                    key={item}
+                    className="article-box skeleton-pulse"
+                    style={{
+                      height: '220px',
+                      borderRadius: '16px',
+                      border: 'none'
+                    }}
+                  />
+                ))}
+              </div>
+            </section>
+          </div>
         </div>
       </div>
     );
