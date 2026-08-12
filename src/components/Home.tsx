@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { renderThemeName } from '../utils/themeHelpers';
+import { renderThemeName, getThemeClass } from '../utils/themeHelpers';
 import './Home.css';
 
 interface HomeProps {
@@ -166,7 +166,7 @@ export const Home: React.FC<HomeProps> = ({
           ) : (
             <div className="cards-grid" style={{ marginTop: '0' }}>
               {savedCards.map((card, idx) => {
-                const themeClass = card.theme === 'pink-theme' ? 'pink-pop-theme' : (card.theme || 'comic-theme');
+                const themeClass = getThemeClass(card.theme);
                 const isPersonal = String(card.usageType || '').toUpperCase() === 'PERSONAL';
                 const metaLabel = isPersonal ? 'PROFESSION' : 'BUSINESS';
                 const cardProfession = card.designation || card.profession || 'MEMBER';

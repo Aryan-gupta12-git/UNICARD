@@ -9,7 +9,7 @@ export interface OnboardingData {
   phone: string;
   bio: string;
   usageType: 'personal' | 'business' | null;
-  theme?: 'comic-theme' | 'pink-pop-theme' | 'spider-comic-theme';
+  theme?: 'comic-theme' | 'pink-pop-theme' | 'spider-comic-theme' | 'uno-theme' | 'zombie-theme';
   business: {
     name: string;
     designation: string;

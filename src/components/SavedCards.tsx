@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Loader2 } from 'lucide-react';
-import { renderThemeName } from '../utils/themeHelpers';
+import { renderThemeName, getThemeClass } from '../utils/themeHelpers';
 import './Home.css';
 
 interface SavedCardsProps {
@@ -125,7 +125,7 @@ export const SavedCards: React.FC<SavedCardsProps> = ({
         ) : (
           <div className="cards-grid" style={{ marginTop: '0' }}>
             {userCards.map((card, idx) => {
-              const themeClass = card.theme === 'pink-theme' ? 'pink-pop-theme' : (card.theme || 'comic-theme');
+              const themeClass = getThemeClass(card.theme);
               const isPersonal = String(card.usageType || '').toUpperCase() === 'PERSONAL';
               const metaLabel = isPersonal ? 'PROFESSION' : 'BUSINESS';
               const cardProfession = card.designation || card.profession || 'MEMBER';

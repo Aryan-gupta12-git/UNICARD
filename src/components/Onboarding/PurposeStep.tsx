@@ -22,7 +22,7 @@ export const PurposeStep: React.FC<PurposeStepProps> = ({ data, updateData, onNe
     }
   };
 
-  const handleSelectTheme = (theme: 'comic-theme' | 'pink-pop-theme' | 'spider-comic-theme') => {
+  const handleSelectTheme = (theme: 'comic-theme' | 'pink-pop-theme' | 'spider-comic-theme' | 'uno-theme' | 'zombie-theme') => {
     updateData({ theme });
   };
 
@@ -102,10 +102,10 @@ export const PurposeStep: React.FC<PurposeStepProps> = ({ data, updateData, onNe
 
       {errors.usageType && <span className="error-text error-block">{errors.usageType}</span>}
 
-      {/* Personal Card Theme & Profession Options */}
+      {/* Personal Additional Fields */}
       {data.usageType === 'personal' && (
         <div className="business-fields-container fade-in-subfields">
-          <div className="form-group" style={{ marginBottom: '16px' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
             <label htmlFor="personalProfession" className="form-label">
               Profession / Role
             </label>
@@ -117,62 +117,6 @@ export const PurposeStep: React.FC<PurposeStepProps> = ({ data, updateData, onNe
               value={data.business.designation}
               onChange={(e) => handleBusinessChange('designation', e.target.value)}
             />
-          </div>
-
-          <div className="form-group" style={{ marginBottom: 0 }}>
-            <label className="form-label" style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
-              Select Card Theme
-            </label>
-            <p className="step-subheading" style={{ marginBottom: '16px', fontSize: '13px' }}>
-              Choose an available theme for your personal card. More themes coming soon!
-            </p>
-
-            <div className="option-cards-grid">
-              <div
-                className={`option-card ${selectedTheme === 'comic-theme' ? 'is-selected' : ''}`}
-                onClick={() => handleSelectTheme('comic-theme')}
-              >
-                <div className="option-card-header">
-                  <span className="option-title">Comic</span>
-                  <div className="option-radio">
-                    {selectedTheme === 'comic-theme' && <div className="option-radio-dot" />}
-                  </div>
-                </div>
-                <p className="option-description">
-                  Bold pop-art illustration style with Bangers comic font.
-                </p>
-              </div>
-
-              <div
-                className={`option-card ${selectedTheme === 'pink-pop-theme' ? 'is-selected' : ''}`}
-                onClick={() => handleSelectTheme('pink-pop-theme')}
-              >
-                <div className="option-card-header">
-                  <span className="option-title">Barbie / Pink Pop</span>
-                  <div className="option-radio">
-                    {selectedTheme === 'pink-pop-theme' && <div className="option-radio-dot" />}
-                  </div>
-                </div>
-                <p className="option-description">
-                  Vibrant pink pop-comic style with gradient title text.
-                </p>
-              </div>
-
-              <div
-                className={`option-card ${selectedTheme === 'spider-comic-theme' ? 'is-selected' : ''}`}
-                onClick={() => handleSelectTheme('spider-comic-theme')}
-              >
-                <div className="option-card-header">
-                  <span className="option-title">Spider Comic</span>
-                  <div className="option-radio">
-                    {selectedTheme === 'spider-comic-theme' && <div className="option-radio-dot" />}
-                  </div>
-                </div>
-                <p className="option-description">
-                  Spider hero style with red & blue dual-tone title typography.
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       )}
@@ -224,7 +168,7 @@ export const PurposeStep: React.FC<PurposeStepProps> = ({ data, updateData, onNe
             </select>
           </div>
 
-          <div className="form-group">
+          <div className="form-group" style={{ marginBottom: 0 }}>
             <label htmlFor="businessAddress" className="form-label">Business Address</label>
             <textarea
               id="businessAddress"
@@ -234,6 +178,97 @@ export const PurposeStep: React.FC<PurposeStepProps> = ({ data, updateData, onNe
               value={data.business.address}
               onChange={(e) => handleBusinessChange('address', e.target.value)}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Card Theme Selection for Both Personal & Business */}
+      {Boolean(data.usageType) && (
+        <div className="business-fields-container fade-in-subfields" style={{ marginTop: '20px' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label" style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
+              Select Card Theme
+            </label>
+            <p className="step-subheading" style={{ marginBottom: '16px', fontSize: '13px' }}>
+              Choose an available theme for your card.
+            </p>
+
+            <div className="option-cards-grid">
+              <div
+                className={`option-card ${selectedTheme === 'comic-theme' ? 'is-selected' : ''}`}
+                onClick={() => handleSelectTheme('comic-theme')}
+              >
+                <div className="option-card-header">
+                  <span className="option-title">Comic</span>
+                  <div className="option-radio">
+                    {selectedTheme === 'comic-theme' && <div className="option-radio-dot" />}
+                  </div>
+                </div>
+                <p className="option-description">
+                  Bold pop-art illustration style with Bangers comic font.
+                </p>
+              </div>
+
+              <div
+                className={`option-card ${selectedTheme === 'pink-pop-theme' ? 'is-selected' : ''}`}
+                onClick={() => handleSelectTheme('pink-pop-theme')}
+              >
+                <div className="option-card-header">
+                  <span className="option-title">Barbie / Pink Pop</span>
+                  <div className="option-radio">
+                    {selectedTheme === 'pink-pop-theme' && <div className="option-radio-dot" />}
+                  </div>
+                </div>
+                <p className="option-description">
+                  Vibrant pink pop-comic style with gradient title text.
+                </p>
+              </div>
+
+              <div
+                className={`option-card ${selectedTheme === 'spider-comic-theme' ? 'is-selected' : ''}`}
+                onClick={() => handleSelectTheme('spider-comic-theme')}
+              >
+                <div className="option-card-header">
+                  <span className="option-title">Spider Comic</span>
+                  <div className="option-radio">
+                    {selectedTheme === 'spider-comic-theme' && <div className="option-radio-dot" />}
+                  </div>
+                </div>
+                <p className="option-description">
+                  Spider hero style with red & blue dual-tone title typography.
+                </p>
+              </div>
+
+              <div
+                className={`option-card ${selectedTheme === 'uno-theme' ? 'is-selected' : ''}`}
+                onClick={() => handleSelectTheme('uno-theme')}
+              >
+                <div className="option-card-header">
+                  <span className="option-title">UNO</span>
+                  <div className="option-radio">
+                    {selectedTheme === 'uno-theme' && <div className="option-radio-dot" />}
+                  </div>
+                </div>
+                <p className="option-description">
+                  Classic gaming style with yellow Luckiest Guy title typography.
+                </p>
+              </div>
+
+              <div
+                className={`option-card ${selectedTheme === 'zombie-theme' ? 'is-selected' : ''}`}
+                onClick={() => handleSelectTheme('zombie-theme')}
+              >
+                <div className="option-card-header">
+                  <span className="option-title">Zombie</span>
+                  <div className="option-radio">
+                    {selectedTheme === 'zombie-theme' && <div className="option-radio-dot" />}
+                  </div>
+                </div>
+                <p className="option-description">
+                  Spooky horror style with lime Nosifer title typography.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}

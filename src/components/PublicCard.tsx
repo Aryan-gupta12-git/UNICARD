@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { UserPlus, Download, Check } from 'lucide-react';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import { renderThemeName } from '../utils/themeHelpers';
+import { renderThemeName, getThemeClass } from '../utils/themeHelpers';
 import './Auth/Auth.css';
 import './Home.css';
 
@@ -179,7 +179,7 @@ export const PublicCard: React.FC<PublicCardProps> = ({
     );
   }
 
-  const themeClass = profile.theme === 'pink-theme' ? 'pink-pop-theme' : (profile.theme || 'comic-theme');
+  const themeClass = getThemeClass(profile.theme);
   const isPersonal = String(profile.usageType || '').toUpperCase() === 'PERSONAL';
   const metaLabel = isPersonal ? 'PROFESSION' : 'BUSINESS';
   const metaValue = isPersonal
