@@ -5,7 +5,7 @@ import './Home.css';
 interface HomeProps {
   userName?: string;
   profile?: any | null;
-  onViewCard?: (slug: string) => void;
+  onViewCard?: (slug: string, isReadOnly?: boolean) => void;
   onEditDetails?: () => void;
   onCreateCard: () => void;
   onNavigate?: (view: 'saved-cards' | 'analytics') => void;
@@ -53,14 +53,20 @@ const ARTICLES: Article[] = [
 export const Home: React.FC<HomeProps> = ({
   userName = 'User',
   profile: initialProfile = null,
+  onViewCard,
   onCreateCard
 }) => {
   const { user } = useAuth();
   const [userCards, setUserCards] = useState<any[]>(initialProfile ? [initialProfile] : []);
 
+  // Saved Cards state for Home section
+  const [savedCards, setSavedCards] = useState<any[]>([]);
+  const [loadingSaved, setLoadingSaved] = useState<boolean>(true);
+
   const nameToUse = (userName && userName !== 'User') ? userName : (user?.name || 'User');
   const firstName = nameToUse.trim().split(' ')[0] || 'User';
 
+  // Fetch user's owned cards for header logic
   useEffect(() => {
     const fetchUserCards = async () => {
       try {
@@ -85,6 +91,34 @@ export const Home: React.FC<HomeProps> = ({
     fetchUserCards();
   }, [initialProfile]);
 
+  // Fetch saved cards (cards saved from other users)
+  useEffect(() => {
+    const fetchSavedCards = async () => {
+      setLoadingSaved(true);
+      try {
+        const res = await fetch('/api/unicard/saved-cards', { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.savedCards)) {
+            setSavedCards(data.savedCards);
+          } else if (Array.isArray(data.cards)) {
+            setSavedCards(data.cards);
+          } else if (Array.isArray(data)) {
+            setSavedCards(data);
+          } else {
+            setSavedCards([]);
+          }
+        }
+      } catch (err) {
+        console.error('Fetch saved cards error on home:', err);
+      } finally {
+        setLoadingSaved(false);
+      }
+    };
+
+    fetchSavedCards();
+  }, []);
+
   return (
     <div className="auth-product-page">
       <div className="home-container">
@@ -105,12 +139,64 @@ export const Home: React.FC<HomeProps> = ({
 
         {/* Saved Cards Section */}
         <section className="home-cards-section">
-          <h2 className="articles-heading">Saved Cards</h2>
-          <div style={{ textAlign: 'center', padding: '48px 24px', backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '15px', margin: 0 }}>
-              Scan to add card
-            </p>
-          </div>
+          <h2 className="articles-heading" style={{ marginBottom: '20px' }}>Saved Cards</h2>
+
+          {loadingSaved ? (
+            <div className="cards-grid" style={{ marginTop: '0' }}>
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="card-box skeleton-pulse"
+                  style={{
+                    minHeight: '220px',
+                    backgroundColor: '#F0F3F7',
+                    borderRadius: '16px',
+                    border: '1px solid var(--border-subtle)'
+                  }}
+                />
+              ))}
+            </div>
+          ) : savedCards.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 24px', backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '15px', margin: 0 }}>
+                Scan to add card
+              </p>
+            </div>
+          ) : (
+            <div className="cards-grid" style={{ marginTop: '0' }}>
+              {savedCards.map((card, idx) => {
+                const themeClass = card.theme === 'pink-theme' ? 'pink-pop-theme' : (card.theme || 'comic-theme');
+                const isPersonal = String(card.usageType || '').toUpperCase() === 'PERSONAL';
+                const metaLabel = isPersonal ? 'PROFESSION' : 'BUSINESS';
+                const cardProfession = card.designation || card.profession || '';
+                const cardBusiness = card.businessName || '';
+                const metaValue = isPersonal ? cardProfession : (cardBusiness || cardProfession || '');
+
+                return (
+                  <div
+                    key={card.id || idx}
+                    className={`card-box ${themeClass}`}
+                    onClick={() => {
+                      if (onViewCard) {
+                        onViewCard(card.slug || card.id, true);
+                      }
+                    }}
+                    style={{ cursor: 'pointer', position: 'relative' }}
+                  >
+                    <div className="card-box-main">
+                      <h3 className="card-user-name">{card.name}</h3>
+                    </div>
+                    {(metaValue || !isPersonal) && (
+                      <div className="card-meta-row">
+                        <span className="card-business-label">{metaLabel}</span>
+                        <span className="card-business-name">{metaValue}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         {/* Featured Articles Section */}

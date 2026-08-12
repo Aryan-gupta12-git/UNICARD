@@ -36,6 +36,11 @@ const MainAppContent: React.FC = () => {
   const [isReadOnlyCardView, setIsReadOnlyCardView] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<any | null>(null);
   const [isProfileChecking, setIsProfileChecking] = useState<boolean>(true);
+  const [savedCardsRefreshKey, setSavedCardsRefreshKey] = useState<number>(0);
+
+  const handleSavedCardAdded = () => {
+    setSavedCardsRefreshKey((prev) => prev + 1);
+  };
   const { isAuthenticated, isLoading, user } = useAuth();
 
   // Check URL pathname for /c/:slug or /u/:slug on mount
@@ -53,16 +58,11 @@ const MainAppContent: React.FC = () => {
     const pendingSlug = sessionStorage.getItem('pending_save_slug');
     if (pendingSlug) {
       try {
-        const res = await fetch(`/api/unicard/saved-cards/${pendingSlug}`, {
+        await fetch(`/api/unicard/saved-cards/${pendingSlug}`, {
           method: 'POST',
           credentials: 'include'
         });
-        if (res.ok) {
-          sessionStorage.removeItem('pending_save_slug');
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          setView('saved-cards');
-          return true;
-        }
+        handleSavedCardAdded();
       } catch (err) {
         console.error('Pending save card error:', err);
       } finally {
@@ -253,9 +253,10 @@ const MainAppContent: React.FC = () => {
 
       {view === 'home' && (
         <Home
+          key={savedCardsRefreshKey}
           userName={user?.name}
           profile={userProfile}
-          onViewCard={(slug) => handleViewCard(slug, 'home', false)}
+          onViewCard={(slug, isReadOnly) => handleViewCard(slug, 'home', Boolean(isReadOnly))}
           onCreateCard={handleCreateNewCard}
         />
       )}
@@ -270,6 +271,7 @@ const MainAppContent: React.FC = () => {
 
       {view === 'saved-cards' && (
         <SavedCards
+          key={savedCardsRefreshKey}
           mode="saved-cards"
           onViewCard={(slug) => handleViewCard(slug, 'saved-cards', true)}
           onCreateCard={handleCreateNewCard}
@@ -286,6 +288,7 @@ const MainAppContent: React.FC = () => {
           onHomeClick={() => setView(isAuthenticated ? 'home' : 'landing')}
           onNavigateToSavedCards={() => setView('saved-cards')}
           onNavigateToAuth={(authView) => setView(authView)}
+          onCardSaved={handleSavedCardAdded}
         />
       )}
 

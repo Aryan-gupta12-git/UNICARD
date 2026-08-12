@@ -9,13 +9,15 @@ interface PublicCardProps {
   onHomeClick: () => void;
   onNavigateToSavedCards?: () => void;
   onNavigateToAuth?: (view: 'signin' | 'signup') => void;
+  onCardSaved?: () => void;
 }
 
 export const PublicCard: React.FC<PublicCardProps> = ({
   slug,
   onHomeClick,
   onNavigateToSavedCards,
-  onNavigateToAuth
+  onNavigateToAuth,
+  onCardSaved
 }) => {
   const { isAuthenticated } = useAuth();
   const [profile, setProfile] = useState<any | null>(null);
@@ -118,9 +120,10 @@ export const PublicCard: React.FC<PublicCardProps> = ({
 
       const data = await res.json().catch(() => ({}));
 
-      if (res.ok) {
+      if (res.ok || (data.error && data.error.toLowerCase().includes('already saved'))) {
         setSaveSuccess(true);
-        setSaveMessage('Card saved to your account!');
+        setSaveMessage(res.ok ? 'Card saved to your account!' : 'Card already saved in your account.');
+        if (onCardSaved) onCardSaved();
       } else {
         setSaveMessage(data.error || 'Failed to save card.');
       }
