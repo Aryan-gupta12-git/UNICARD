@@ -124,8 +124,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               </a>
               <a
                 href="#analytics"
-                className={activeView === 'analytics' ? 'is-active' : ''}
-                onClick={(e) => handleAuthenticatedNav(e, 'analytics')}
+                style={{ opacity: 0.5, cursor: 'not-allowed', pointerEvents: 'none' }}
+                onClick={(e) => e.preventDefault()}
               >
                 Analytics
               </a>
@@ -217,8 +217,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               </a>
               <a
                 href="#analytics"
-                className={activeView === 'analytics' ? 'is-active' : ''}
-                onClick={(e) => handleAuthenticatedNav(e, 'analytics')}
+                style={{ opacity: 0.5, cursor: 'not-allowed', pointerEvents: 'none' }}
+                onClick={(e) => e.preventDefault()}
               >
                 Analytics
               </a>
