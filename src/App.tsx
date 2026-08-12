@@ -344,7 +344,7 @@ const MainAppContent: React.FC = () => {
           }}
           onClose={async () => {
             await handleRefreshProfile();
-            setView('my-cards');
+            setView('home');
           }}
         />
       )}
