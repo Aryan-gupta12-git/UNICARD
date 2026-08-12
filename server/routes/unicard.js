@@ -517,4 +517,109 @@ router.get('/public/:slug', async (req, res) => {
   }
 });
 
+// POST /api/unicard/saved-cards/:cardId - Save card to account
+router.post('/saved-cards/:cardId', requireAuth, async (req, res) => {
+  try {
+    const { cardId } = req.params;
+
+    const card = await prisma.uniCardProfile.findFirst({
+      where: {
+        OR: [
+          { id: String(cardId) },
+          { slug: String(cardId).toLowerCase().trim() }
+        ]
+      }
+    });
+
+    if (!card) {
+      return res.status(404).json({ error: 'Card not found.' });
+    }
+
+    if (card.userId === req.user.id) {
+      return res.status(400).json({ error: 'This card is already yours.' });
+    }
+
+    const existingSaved = await prisma.savedCard.findUnique({
+      where: {
+        userId_cardId: {
+          userId: req.user.id,
+          cardId: card.id
+        }
+      }
+    });
+
+    if (existingSaved) {
+      return res.status(400).json({ error: 'Card already saved in your account.' });
+    }
+
+    const savedRecord = await prisma.savedCard.create({
+      data: {
+        userId: req.user.id,
+        cardId: card.id
+      },
+      include: {
+        card: {
+          include: { socials: true }
+        }
+      }
+    });
+
+    return res.status(201).json({ success: true, savedCard: savedRecord.card });
+  } catch (err) {
+    console.error('Error saving card to account:', err);
+    return res.status(500).json({ error: 'Failed to save card to account.' });
+  }
+});
+
+// GET /api/unicard/saved-cards - List all cards saved by authenticated user
+router.get('/saved-cards', requireAuth, async (req, res) => {
+  try {
+    const savedRecords = await prisma.savedCard.findMany({
+      where: { userId: req.user.id },
+      include: {
+        card: {
+          include: { socials: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    const cards = savedRecords.map((r) => r.card);
+    return res.json({ savedCards: cards, cards });
+  } catch (err) {
+    console.error('Error fetching saved cards:', err);
+    return res.status(500).json({ error: 'Failed to load saved cards.' });
+  }
+});
+
+// DELETE /api/unicard/saved-cards/:cardId - Remove saved card from account
+router.delete('/saved-cards/:cardId', requireAuth, async (req, res) => {
+  try {
+    const { cardId } = req.params;
+
+    const card = await prisma.uniCardProfile.findFirst({
+      where: {
+        OR: [
+          { id: String(cardId) },
+          { slug: String(cardId).toLowerCase().trim() }
+        ]
+      }
+    });
+
+    if (card) {
+      await prisma.savedCard.deleteMany({
+        where: {
+          userId: req.user.id,
+          cardId: card.id
+        }
+      });
+    }
+
+    return res.json({ success: true, message: 'Saved card removed.' });
+  } catch (err) {
+    console.error('Error removing saved card:', err);
+    return res.status(500).json({ error: 'Failed to remove saved card.' });
+  }
+});
+
 export default router;

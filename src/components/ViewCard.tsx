@@ -6,6 +6,7 @@ import './ViewCard.css';
 interface ViewCardProps {
   profile?: any | null;
   slug?: string;
+  isReadOnly?: boolean;
   onBackToHome?: () => void;
   onPreviewCard?: (slug: string) => void;
   onEditCard?: (slug: string) => void;
@@ -13,6 +14,7 @@ interface ViewCardProps {
 
 export const ViewCard: React.FC<ViewCardProps> = ({
   slug: initialSlug = '',
+  isReadOnly = false,
   onBackToHome,
   onPreviewCard,
   onEditCard
@@ -191,52 +193,66 @@ export const ViewCard: React.FC<ViewCardProps> = ({
               </div>
             </div>
 
-            {/* Action Buttons: Download, Share, Preview, & Edit */}
-            <div className="view-card-qr-actions">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleDownloadQR}
-              >
-                <Download size={15} />
-                <span>Download</span>
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleShareLink}
-              >
-                {copied ? <Check size={15} /> : <Share2 size={15} />}
-                <span>{copied ? 'Copied' : 'Share'}</span>
-              </button>
-
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => {
-                  if (onPreviewCard) {
-                    onPreviewCard(cardSlug);
-                  } else {
-                    window.open(fullUrl, '_blank');
-                  }
-                }}
-              >
-                <Eye size={15} />
-                <span>Preview</span>
-              </button>
-
-              {onEditCard && (
+            {/* Action Buttons */}
+            {isReadOnly ? (
+              <div className="view-card-qr-actions">
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleShareLink}
+                  style={{ width: '100%' }}
+                >
+                  {copied ? <Check size={16} /> : <Share2 size={16} />}
+                  <span>{copied ? 'Copied Link' : 'Share Card'}</span>
+                </button>
+              </div>
+            ) : (
+              <div className="view-card-qr-actions">
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={() => onEditCard(cardSlug)}
+                  onClick={handleDownloadQR}
                 >
-                  <Edit size={15} />
-                  <span>Edit</span>
+                  <Download size={15} />
+                  <span>Download</span>
                 </button>
-              )}
-            </div>
+
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleShareLink}
+                >
+                  {copied ? <Check size={15} /> : <Share2 size={15} />}
+                  <span>{copied ? 'Copied' : 'Share'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    if (onPreviewCard) {
+                      onPreviewCard(cardSlug);
+                    } else {
+                      window.open(fullUrl, '_blank');
+                    }
+                  }}
+                >
+                  <Eye size={15} />
+                  <span>Preview</span>
+                </button>
+
+                {onEditCard && (
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => onEditCard(cardSlug)}
+                  >
+                    <Edit size={15} />
+                    <span>Edit</span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* RIGHT SIDE — CARD INFORMATION DETAILS */}

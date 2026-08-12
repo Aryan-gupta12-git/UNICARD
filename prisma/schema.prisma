@@ -17,6 +17,7 @@ model User {
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   cards        UniCardProfile[]
+  savedCards   SavedCard[]
 }
 
 enum UsageType {
@@ -47,6 +48,7 @@ model UniCardProfile {
 
   user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   socials          SocialLink[]
+  savedBy          SavedCard[]
 }
 
 model SocialLink {
@@ -56,4 +58,16 @@ model SocialLink {
   url       String
 
   profile   UniCardProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model SavedCard {
+  id        String   @id @default(cuid())
+  userId    String
+  cardId    String
+  createdAt DateTime @default(now())
+
+  user User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  card UniCardProfile @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cardId])
 }

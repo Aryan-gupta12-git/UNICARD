@@ -32,9 +32,44 @@ const MainAppContent: React.FC = () => {
   const [publicSlug, setPublicSlug] = useState<string>('');
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [cardOriginView, setCardOriginView] = useState<AppView>('home');
+  const [isReadOnlyCardView, setIsReadOnlyCardView] = useState<boolean>(false);
   const [userProfile, setUserProfile] = useState<any | null>(null);
   const [isProfileChecking, setIsProfileChecking] = useState<boolean>(true);
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Check URL pathname for /c/:slug or /u/:slug on mount
+  useEffect(() => {
+    const path = window.location.pathname;
+    const match = path.match(/^\/(?:c|u)\/([^/]+)/);
+    if (match && match[1]) {
+      setPublicSlug(match[1]);
+      setView('public-card');
+    }
+  }, []);
+
+  // Process pending save card after auth
+  const processPendingSaveCard = async (): Promise<boolean> => {
+    const pendingSlug = sessionStorage.getItem('pending_save_slug');
+    if (pendingSlug) {
+      try {
+        const res = await fetch(`/api/unicard/saved-cards/${pendingSlug}`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        if (res.ok) {
+          sessionStorage.removeItem('pending_save_slug');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          setView('saved-cards');
+          return true;
+        }
+      } catch (err) {
+        console.error('Pending save card error:', err);
+      } finally {
+        sessionStorage.removeItem('pending_save_slug');
+      }
+    }
+    return false;
+  };
 
   // Restore session & check profile on app mount or auth change
   useEffect(() => {
@@ -53,7 +88,11 @@ const MainAppContent: React.FC = () => {
             } else {
               setUserProfile(null);
             }
-            setView((prev) => (prev === 'landing' || prev === 'signin' || prev === 'signup' ? 'home' : prev));
+
+            const savedPending = await processPendingSaveCard();
+            if (!savedPending) {
+              setView((prev) => (prev === 'landing' || prev === 'signin' || prev === 'signup' ? 'home' : prev));
+            }
           }
         } catch (err) {
           console.error('Error checking UNICARD profile:', err);
@@ -89,49 +128,46 @@ const MainAppContent: React.FC = () => {
       const observer = new IntersectionObserver(observerCallback, observerOptions);
       const sections = document.querySelectorAll('.section');
 
-      sections.forEach((sec) => {
-        sec.classList.add('fade-in-section');
-        observer.observe(sec);
+      sections.forEach((section) => {
+        observer.observe(section);
       });
 
-      return () => observer.disconnect();
+      return () => {
+        sections.forEach((section) => {
+          observer.unobserve(section);
+        });
+      };
     }
   }, [view]);
 
-  // Protected route enforcement for onboarding or home
-  const handleStartBuild = () => {
-    if (isAuthenticated) {
-      setView('home');
-    } else {
-      setView('signin');
-    }
-  };
-
-  const handleNavigateHome = (targetId?: string) => {
-    if (isAuthenticated) {
-      setView('home');
-    } else {
-      setView('landing');
-      if (targetId) {
-        setTimeout(() => {
-          const element = document.getElementById(targetId);
-          if (element) {
-            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 80);
+  const handleRefreshProfile = async () => {
+    try {
+      const res = await fetch('/api/unicard/me', { credentials: 'include' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.profile) {
+          setUserProfile(data.profile);
+        } else if (Array.isArray(data.cards) && data.cards.length > 0) {
+          setUserProfile(data.cards[0]);
+        }
       }
+    } catch (err) {
+      console.error('Error refreshing profile:', err);
     }
   };
 
-  const handleViewPublicCard = (slug: string, origin?: AppView) => {
-    if (origin) {
-      setCardOriginView(origin);
-    } else {
-      setCardOriginView(view === 'view-card' ? cardOriginView : view);
-    }
+  const handleViewCard = (slug: string, originView: AppView = 'home', isReadOnly: boolean = false) => {
     setPublicSlug(slug);
+    setCardOriginView(originView);
+    setIsReadOnlyCardView(isReadOnly);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setView('view-card');
+  };
+
+  const handleEditCard = (cardSlugOrId?: string) => {
+    setEditingCardId(cardSlugOrId || null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setView('onboarding');
   };
 
   const handleCreateNewCard = () => {
@@ -140,71 +176,32 @@ const MainAppContent: React.FC = () => {
     setView('onboarding');
   };
 
-  const handleEditCard = (cardIdOrSlug?: string) => {
-    const targetId = cardIdOrSlug || publicSlug || userProfile?.id;
-    setEditingCardId(targetId || null);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setView('onboarding');
-  };
-
-  const handleRefreshProfile = async () => {
-    try {
-      const res = await fetch('/api/unicard/me', { credentials: 'include' });
-      if (res.ok) {
-        const data = await res.json();
-        const active = data.profile || (Array.isArray(data.cards) ? data.cards[0] : null);
-        setUserProfile(active || null);
-        return active;
-      }
-    } catch (err) {
-      console.error('Failed to refresh profile:', err);
-    }
-    return null;
-  };
-
-  const [isTypewriterActive, setIsTypewriterActive] = useState<boolean>(false);
-
-  const isAuthView = view === 'signin' || view === 'signup' || view === 'forgot-password' || view === 'onboarding' || view === 'public-card';
-
-  if (isLoading || (isAuthenticated && isProfileChecking)) {
+  if (isLoading || (isAuthenticated && isProfileChecking && view !== 'public-card')) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: 'var(--font-sans)',
-        color: 'var(--text-secondary)'
-      }}>
-        Loading UNICARD...
+      <div className="auth-product-page">
+        <Navbar
+          activeView={view}
+          onNavigateView={(v) => setView(v as AppView)}
+          onLoginClick={() => setView('signin')}
+        />
+        <div className="home-container" style={{ textAlign: 'center', paddingTop: '100px' }}>
+          <p style={{ color: 'var(--text-secondary)' }}>Loading UNICARD...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="app-root">
+    <div className="app">
       <Navbar
-        onLoginClick={handleStartBuild}
-        onHomeClick={handleNavigateHome}
-        isAuthActive={isAuthView}
-        onViewProfile={() => {
-          if (userProfile?.slug) {
-            handleViewPublicCard(userProfile.slug);
-          } else {
-            handleCreateNewCard();
-          }
-        }}
         activeView={view}
-        onNavigateView={(navView) => setView(navView as AppView)}
-        isTypewriterActive={isTypewriterActive}
+        onNavigateView={(v) => setView(v as AppView)}
+        onLoginClick={() => setView('signin')}
       />
-      
+
       {view === 'landing' && (
         <main>
-          <Hero
-            onLoginClick={handleStartBuild}
-            onTypewriterStateChange={setIsTypewriterActive}
-          />
+          <Hero />
           <AboutUs />
           <Benefits />
         </main>
@@ -215,8 +212,11 @@ const MainAppContent: React.FC = () => {
           onSwitchToSignUp={() => setView('signup')}
           onSwitchToForgotPassword={() => setView('forgot-password')}
           onSuccess={async () => {
-            await handleRefreshProfile();
-            setView('home');
+            const savedPending = await processPendingSaveCard();
+            if (!savedPending) {
+              await handleRefreshProfile();
+              setView('home');
+            }
           }}
         />
       )}
@@ -225,8 +225,11 @@ const MainAppContent: React.FC = () => {
         <SignUp
           onSwitchToSignIn={() => setView('signin')}
           onSuccess={async () => {
-            await handleRefreshProfile();
-            setView('home');
+            const savedPending = await processPendingSaveCard();
+            if (!savedPending) {
+              await handleRefreshProfile();
+              setView('home');
+            }
           }}
         />
       )}
@@ -240,31 +243,25 @@ const MainAppContent: React.FC = () => {
       {view === 'onboarding' && (
         <Onboarding
           editingCardId={editingCardId}
-          onClose={() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            setView(isAuthenticated ? 'home' : 'landing');
-          }}
-          onViewCard={handleViewPublicCard}
-          onCompleteSuccess={async () => {
+          onClose={async () => {
             await handleRefreshProfile();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            setView('home');
+            setView('saved-cards');
           }}
         />
       )}
 
       {view === 'home' && (
         <Home
-          userName={user?.name}
           profile={userProfile}
+          onViewCard={(slug) => handleViewCard(slug, 'home', false)}
           onCreateCard={handleCreateNewCard}
-          onNavigate={(targetView) => setView(targetView)}
         />
       )}
 
       {view === 'saved-cards' && (
         <SavedCards
-          onViewCard={(slug) => handleViewPublicCard(slug, 'saved-cards')}
+          mode="my-cards"
+          onViewCard={(slug) => handleViewCard(slug, 'saved-cards', false)}
           onCreateCard={handleCreateNewCard}
         />
       )}
@@ -277,12 +274,15 @@ const MainAppContent: React.FC = () => {
         <PublicCard
           slug={publicSlug}
           onHomeClick={() => setView(isAuthenticated ? 'home' : 'landing')}
+          onNavigateToSavedCards={() => setView('saved-cards')}
+          onNavigateToAuth={(authView) => setView(authView)}
         />
       )}
 
       {view === 'view-card' && (
         <ViewCard
           slug={publicSlug}
+          isReadOnly={isReadOnlyCardView}
           onBackToHome={() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
             setView(cardOriginView || (isAuthenticated ? 'home' : 'landing'));
