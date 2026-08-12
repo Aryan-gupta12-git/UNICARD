@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { AuthContainer } from './AuthContainer';
-import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 interface SignInProps {
   onSwitchToSignUp: () => void;
@@ -139,10 +140,15 @@ export const SignIn: React.FC<SignInProps> = ({
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              <>
-                <Loader2 size={18} className="animate-spin" />
-                Logging in...
-              </>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                <DotLottieReact
+                  src="https://lottie.host/c50fba5a-6759-4ed6-abb1-895e287827c0/yYW2rfV8hL.lottie"
+                  loop
+                  autoplay
+                  style={{ width: '28px', height: '28px' }}
+                />
+                <span>Logging in...</span>
+              </span>
             ) : (
               'Log in'
             )}

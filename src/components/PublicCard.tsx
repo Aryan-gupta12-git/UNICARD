@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { UserPlus, Download, Check, Loader2 } from 'lucide-react';
+import { UserPlus, Download, Check } from 'lucide-react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import './Auth/Auth.css';
 import './Home.css';
 
@@ -276,10 +277,15 @@ export const PublicCard: React.FC<PublicCardProps> = ({
               }}
             >
               {isSavingCard ? (
-                <>
-                  <Loader2 size={18} className="animate-spin" />
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                  <DotLottieReact
+                    src="https://lottie.host/c50fba5a-6759-4ed6-abb1-895e287827c0/yYW2rfV8hL.lottie"
+                    loop
+                    autoplay
+                    style={{ width: '28px', height: '28px' }}
+                  />
                   <span>Saving...</span>
-                </>
+                </span>
               ) : (
                 <>
                   <UserPlus size={18} />

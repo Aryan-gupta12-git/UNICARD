@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import type { OnboardingData } from './types';
 import { SOCIAL_PLATFORMS } from './types';
-import { Trash2, Plus, Loader2 } from 'lucide-react';
+import { Trash2, Plus } from 'lucide-react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 interface SocialsStepProps {
   data: OnboardingData;
@@ -226,10 +227,15 @@ export const SocialsStep: React.FC<SocialsStepProps> = ({
         </button>
         <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
           {isSubmitting ? (
-            <>
-              <Loader2 size={18} className="animate-spin" />
-              {isEditing ? 'Saving Edits...' : 'Generating UNICARD...'}
-            </>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <DotLottieReact
+                src="https://lottie.host/c50fba5a-6759-4ed6-abb1-895e287827c0/yYW2rfV8hL.lottie"
+                loop
+                autoplay
+                style={{ width: '28px', height: '28px' }}
+              />
+              <span>{isEditing ? 'Saving Edits...' : 'Generating UNICARD...'}</span>
+            </span>
           ) : (
             isEditing ? 'Save Edits' : 'Generate UNICARD'
           )}
