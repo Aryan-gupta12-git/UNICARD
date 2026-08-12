@@ -24,22 +24,19 @@ export const SavedCards: React.FC<SavedCardsProps> = ({
   useEffect(() => {
     const fetchCards = async () => {
       setLoading(true);
-      const endpoint = mode === 'saved-cards' ? '/api/unicard/saved-cards' : '/api/unicard/me';
+      const isSavedMode = mode === 'saved-cards';
+      const endpoint = isSavedMode ? '/api/unicard/saved-cards' : '/api/unicard/me';
 
       try {
         const res = await fetch(endpoint, { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
-          if (Array.isArray(data.savedCards)) {
-            setUserCards(data.savedCards);
-          } else if (Array.isArray(data.cards)) {
-            setUserCards(data.cards);
-          } else if (Array.isArray(data)) {
-            setUserCards(data);
-          } else if (data.profile) {
-            setUserCards([data.profile]);
+          if (isSavedMode) {
+            const list = data.savedCards || (Array.isArray(data) ? data : []);
+            setUserCards(Array.isArray(list) ? list : []);
           } else {
-            setUserCards([]);
+            const list = data.cards || (data.profile ? [data.profile] : (Array.isArray(data) ? data : []));
+            setUserCards(Array.isArray(list) ? list : []);
           }
         }
       } catch (err) {
