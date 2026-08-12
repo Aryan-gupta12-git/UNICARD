@@ -52,11 +52,9 @@ const ARTICLES: Article[] = [
 export const Home: React.FC<HomeProps> = ({
   userName = 'User',
   profile: initialProfile = null,
-  onViewCard,
   onCreateCard
 }) => {
   const [userCards, setUserCards] = useState<any[]>(initialProfile ? [initialProfile] : []);
-  const [loading, setLoading] = useState<boolean>(!initialProfile);
 
   const firstName = userName.trim().split(' ')[0] || 'User';
 
@@ -74,19 +72,11 @@ export const Home: React.FC<HomeProps> = ({
         }
       } catch (err) {
         console.error('Fetch user cards error:', err);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchUserCards();
   }, [initialProfile]);
-
-  const handleCardClick = (slugOrId: string) => {
-    if (onViewCard) {
-      onViewCard(slugOrId);
-    }
-  };
 
   return (
     <div className="auth-product-page">
@@ -104,48 +94,14 @@ export const Home: React.FC<HomeProps> = ({
           </div>
         </header>
 
-        {/* User Cards Section */}
+        {/* Saved Cards Section */}
         <section className="home-cards-section">
-          <h2 className="articles-heading">My Cards</h2>
-
-          {loading ? (
-            <p style={{ color: 'var(--text-secondary)', padding: '24px 0' }}>Loading your cards...</p>
-          ) : userCards.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '48px 24px', backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
-              <h3 style={{ fontSize: '20px', fontFamily: 'var(--font-serif)', color: '#0F1E36', marginBottom: '8px' }}>
-                No cards created yet
-              </h3>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
-                Create your first digital card to share your contact identity effortlessly.
-              </p>
-              <button className="btn btn-primary" onClick={onCreateCard}>
-                Create Card Now
-              </button>
-            </div>
-          ) : (
-            <div className="cards-grid">
-              {userCards.map((card, idx) => {
-                const themeClass = card.theme === 'pink-theme' ? 'pink-pop-theme' : (card.theme || 'comic-theme');
-                return (
-                  <div
-                    key={card.id || idx}
-                    className={`card-box ${themeClass}`}
-                    onClick={() => handleCardClick(card.slug || card.id)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div className="card-box-main">
-                      <h3 className="card-user-name">{card.name}</h3>
-                      <p className="card-user-email">{card.email}</p>
-                    </div>
-                    <div className="card-meta-row">
-                      <span className="card-business-label">BUSINESS</span>
-                      <span className="card-business-name">{card.businessName || 'UNICARD'}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <h2 className="articles-heading">Saved Cards</h2>
+          <div style={{ textAlign: 'center', padding: '48px 24px', backgroundColor: '#FFFFFF', borderRadius: '16px', border: '1px solid var(--border-subtle)' }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '15px', margin: 0 }}>
+              Scan to add card
+            </p>
+          </div>
         </section>
 
         {/* Featured Articles Section */}
