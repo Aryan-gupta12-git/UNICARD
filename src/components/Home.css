@@ -770,10 +770,10 @@
 .card-box.uno-theme .card-user-name,
 .card.uno-theme .card-user-name {
   position: absolute;
-  top: 31%;
+  top: 30%;
   left: 50%;
   transform: translateX(-50%);
-  width: 78%;
+  width: 84%;
   text-align: center;
   font-family: "Luckiest Guy", "Bangers", cursive, sans-serif;
   font-size: clamp(34px, 5vw, 52px);
@@ -804,7 +804,7 @@
 .card-box.uno-theme .uno-name-first,
 .card.uno-theme .uno-name-first {
   display: block;
-  font-size: clamp(26px, 4.8vw, 44px);
+  font-size: clamp(30px, 5.2vw, 46px);
   line-height: 0.9;
   width: 100%;
   text-align: center;
@@ -814,7 +814,7 @@
 .card-box.uno-theme .uno-name-rest,
 .card.uno-theme .uno-name-rest {
   display: block;
-  font-size: clamp(22px, 4.2vw, 36px);
+  font-size: clamp(26px, 4.6vw, 40px);
   line-height: 0.9;
   width: 100%;
   text-align: center;
@@ -825,7 +825,7 @@
 .card-box.uno-theme .uno-name-single,
 .card.uno-theme .uno-name-single {
   display: block;
-  font-size: clamp(28px, 5.2vw, 48px);
+  font-size: clamp(32px, 5.6vw, 50px);
   line-height: 0.92;
   width: 100%;
   text-align: center;
@@ -833,17 +833,17 @@
 
 .card-box.uno-theme .uno-name-first.is-long,
 .card.uno-theme .uno-name-first.is-long {
-  font-size: clamp(20px, 3.8vw, 32px);
+  font-size: clamp(24px, 4.2vw, 36px);
 }
 
 .card-box.uno-theme .uno-name-rest.is-long,
 .card.uno-theme .uno-name-rest.is-long {
-  font-size: clamp(18px, 3.4vw, 28px);
+  font-size: clamp(22px, 3.8vw, 32px);
 }
 
 .card-box.uno-theme .uno-name-single.is-long,
 .card.uno-theme .uno-name-single.is-long {
-  font-size: clamp(22px, 4.2vw, 34px);
+  font-size: clamp(26px, 4.6vw, 38px);
 }
 
 .card-box.uno-theme .card-user-email,
@@ -1055,5 +1055,42 @@
   .card-box.zombie-theme .card-business-name,
   .card.zombie-theme .card-business-name {
     font-size: 17px;
+  }
+
+  /* UNO Name scaling on mobile */
+  .card-box.uno-theme .card-user-name,
+  .card.uno-theme .card-user-name {
+    width: 86%;
+    top: 29%;
+  }
+
+  .card-box.uno-theme .uno-name-first,
+  .card.uno-theme .uno-name-first {
+    font-size: clamp(28px, 6vw, 42px);
+  }
+
+  .card-box.uno-theme .uno-name-rest,
+  .card.uno-theme .uno-name-rest {
+    font-size: clamp(24px, 5.2vw, 36px);
+  }
+
+  .card-box.uno-theme .uno-name-single,
+  .card.uno-theme .uno-name-single {
+    font-size: clamp(30px, 6.5vw, 46px);
+  }
+
+  .card-box.uno-theme .uno-name-first.is-long,
+  .card.uno-theme .uno-name-first.is-long {
+    font-size: clamp(22px, 4.8vw, 32px);
+  }
+
+  .card-box.uno-theme .uno-name-rest.is-long,
+  .card.uno-theme .uno-name-rest.is-long {
+    font-size: clamp(20px, 4.2vw, 28px);
+  }
+
+  .card-box.uno-theme .uno-name-single.is-long,
+  .card.uno-theme .uno-name-single.is-long {
+    font-size: clamp(24px, 5.2vw, 34px);
   }
 }
