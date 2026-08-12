@@ -29,7 +29,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [navbarHidden, setNavbarHidden] = useState(false);
   const prevScrollY = useRef(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, isLoading } = useAuth();
 
   // Handle mobile scroll hide/show with menu override
   useEffect(() => {
@@ -129,6 +129,29 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  if (isLoading) {
+    return (
+      <header className="navbar">
+        <div className="container navbar-container">
+          <a href="#" className="navbar-logo" onClick={(e) => e.preventDefault()}>
+            UNICARD
+          </a>
+          <div className="navbar-actions">
+            <div
+              className="skeleton-pulse"
+              style={{
+                width: '100px',
+                height: '36px',
+                borderRadius: '9999px',
+                backgroundColor: '#F0F3F7'
+              }}
+            />
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className={`navbar ${navbarHidden ? 'is-hidden-mobile' : ''}`}>
