@@ -1,0 +1,571 @@
+/* UNICARD Authenticated Home Page & Featured Articles Styling */
+
+.auth-product-page {
+  position: relative;
+  min-height: calc(100vh - var(--navbar-height));
+  margin-top: calc(-1 * var(--navbar-height));
+  padding-top: calc(var(--navbar-height) + 50px);
+  padding-bottom: 80px;
+  background-color: var(--bg-primary);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.98) 100%), url('/7b774c43-a2f5-4fbf-81f6-ee89a423bdbf.png');
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.home-container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.home-header {
+  margin-bottom: 48px;
+}
+
+.home-title {
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 3.2vw, 40px);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: #0F1E36;
+  margin-bottom: 8px;
+}
+
+.home-subheading,
+.articles-heading {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.home-action-wrapper {
+  margin-top: 24px;
+}
+
+.home-action-wrapper .btn {
+  padding: 12px 36px;
+  font-size: 14px;
+}
+
+/* User Cards Section */
+.home-cards-section {
+  margin-top: 48px;
+  padding-top: 36px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 16px;
+  align-items: stretch;
+}
+
+.card-box {
+  height: 220px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  cursor: pointer;
+  transform: none;
+  box-sizing: border-box;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-box:hover {
+  transform: scale(1.03);
+  box-shadow: 0 14px 28px -6px rgba(15, 30, 54, 0.18);
+}
+
+.card-box-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: auto;
+}
+
+.card-user-name {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  color: #0F1E36;
+  letter-spacing: -0.015em;
+}
+
+.card-user-email {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.card-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.card-business-label {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-tertiary);
+}
+
+.card-business-name {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: #0F1E36;
+}
+
+/* ==========================================================================
+   COMIC THEME SKIN FOR UNICARD CARD
+   ========================================================================== */
+
+.card-box.comic-theme,
+.card.comic-theme {
+  position: relative;
+  background-image: url('/comic1.png');
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  border-color: #111111;
+  box-shadow: 0 8px 24px rgba(17, 17, 17, 0.25);
+  z-index: 1;
+  padding: 20px 24px 2px 24px;
+}
+
+.card-box.comic-theme::before,
+.card.comic-theme::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.04);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.card-box.comic-theme>*,
+.card.comic-theme>* {
+  position: relative;
+  z-index: 1;
+}
+
+/* 1. Name */
+.card-box.comic-theme .card-user-name,
+.card.comic-theme .card-user-name,
+.comic-theme .name {
+  font-family: "Bangers", cursive, sans-serif;
+  font-size: 32px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  color: #FFFDF5;
+  text-shadow: 2px 2px 0 #111111;
+}
+
+/* 2. Email */
+.card-box.comic-theme .card-user-email,
+.card.comic-theme .card-user-email,
+.comic-theme .email {
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #FFD21C;
+  text-shadow: 1px 1px 0 #111111;
+}
+
+/* 3. Bottom White Space Area (BUSINESS Label & Business Name) */
+.card-box.comic-theme .card-meta-row,
+.card.comic-theme .card-meta-row,
+.comic-theme .divider {
+  border-top: none;
+  position: relative;
+  margin-top: auto;
+  padding-top: 0;
+  padding-bottom: 0px;
+  transform: translateY(10px);
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-box.comic-theme .card-meta-row::after,
+.card.comic-theme .card-meta-row::after,
+.comic-theme .divider-line {
+  display: none;
+}
+
+/* 4. BUSINESS Label */
+.card-box.comic-theme .card-business-label,
+.card.comic-theme .card-business-label,
+.comic-theme .business-label {
+  font-family: "Bangers", cursive, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #111111;
+  text-shadow: none;
+}
+
+/* 5. Business Name */
+.card-box.comic-theme .card-business-name,
+.card.comic-theme .card-business-name,
+.comic-theme .business-name {
+  font-family: "Bangers", cursive, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: #111111;
+  text-shadow: none;
+}
+
+/* ==========================================================================
+   PINK POP / GLAM COMIC THEME SKIN FOR UNICARD CARD (80/20 LAYOUT)
+   ========================================================================== */
+
+.card-box.pink-pop-theme,
+.card-box.pink-theme,
+.card.pink-pop-theme,
+.card.pink-theme {
+  position: relative;
+  background-image: url('/barbie1.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  border: none;
+  box-shadow: 0 8px 24px rgba(240, 43, 138, 0.25);
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Upper 80% Section Container */
+.card-box.pink-pop-theme .card-box-main,
+.card-box.pink-theme .card-box-main,
+.card.pink-pop-theme .card-box-main,
+.card.pink-theme .card-box-main {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* User Name - Lower area of upper section */
+.card-box.pink-pop-theme .card-user-name,
+.card-box.pink-theme .card-user-name,
+.card.pink-pop-theme .card-user-name,
+.card.pink-theme .card-user-name {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translateX(-50%) rotate(-4deg);
+  width: 84%;
+  text-align: center;
+  font-family: "Bangers", cursive, sans-serif;
+  font-size: 38px;
+  font-weight: 400;
+  line-height: 0.95;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  background: linear-gradient(
+    180deg,
+    #FF5EB1 0%,
+    #F02B8A 55%,
+    #D71970 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1.5px #FFFFFF;
+  filter:
+    drop-shadow(2px 3px 0 #A91458)
+    drop-shadow(4px 5px 0 #111111);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* User Email - Directly below Name with same title styling */
+.card-box.pink-pop-theme .card-user-email,
+.card-box.pink-theme .card-user-email,
+.card.pink-pop-theme .card-user-email,
+.card.pink-theme .card-user-email {
+  position: absolute;
+  top: 64%;
+  left: 50%;
+  transform: translateX(-50%) rotate(-4deg);
+  width: 82%;
+  text-align: center;
+  font-family: "Bangers", cursive, sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  background: linear-gradient(
+    180deg,
+    #FF5EB1 0%,
+    #F02B8A 55%,
+    #D71970 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 1px #FFFFFF;
+  filter:
+    drop-shadow(1.5px 2px 0 #A91458)
+    drop-shadow(3px 4px 0 #111111);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+/* Bottom 20% Section — Clean White Area */
+.card-box.pink-pop-theme .card-meta-row,
+.card-box.pink-theme .card-meta-row,
+.card.pink-pop-theme .card-meta-row,
+.card.pink-theme .card-meta-row {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 20%;
+  padding: 0 7%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: none;
+  background: transparent;
+  margin: 0;
+  transform: translateY(6px);
+}
+
+.card-box.pink-pop-theme .card-meta-row::after,
+.card-box.pink-theme .card-meta-row::after {
+  display: none;
+}
+
+/* BUSINESS Label - Bottom-Left using Bangers font in Black */
+.card-box.pink-pop-theme .card-business-label,
+.card-box.pink-theme .card-business-label,
+.card.pink-pop-theme .card-business-label,
+.card.pink-theme .card-business-label {
+  font-family: "Bangers", cursive, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #111111;
+  text-shadow: none;
+  margin: 0;
+}
+
+/* Business Name - Bottom-Right using Bangers font in Black */
+.card-box.pink-pop-theme .card-business-name,
+.card-box.pink-theme .card-business-name,
+.card.pink-pop-theme .card-business-name,
+.card.pink-theme .card-business-name {
+  font-family: "Bangers", cursive, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  color: #111111;
+  text-align: right;
+  text-shadow: none;
+  margin: 0;
+  max-width: 60%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Featured Articles Section */
+.home-articles-section {
+  margin-top: 56px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.articles-heading {
+  margin-bottom: 20px;
+}
+
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.article-box {
+  position: relative;
+  height: 220px;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  cursor: pointer;
+  overflow: hidden;
+  z-index: 1;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.article-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background-color: #0F1E36;
+  z-index: -1;
+  transition: width 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.article-box:hover::before {
+  width: 100%;
+}
+
+.article-box:hover {
+  border-color: #0F1E36;
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -8px rgba(15, 30, 54, 0.2);
+}
+
+.article-title {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #0F1E36;
+  letter-spacing: -0.015em;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.article-box:hover .article-title {
+  color: #FFFFFF;
+}
+
+.article-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+  transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.article-box:hover .article-meta-row {
+  border-top-color: rgba(255, 255, 255, 0.2);
+}
+
+.article-author {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: #0F1E36;
+  transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.article-box:hover .article-author {
+  color: #FFFFFF;
+}
+
+.article-time {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  transition: color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.article-box:hover .article-time {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+@media (max-width: 1024px) {
+  .articles-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .articles-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .cards-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 16px;
+    padding-bottom: 8px;
+  }
+
+  .cards-grid .card-box {
+    min-width: 260px;
+    flex-shrink: 0;
+  }
+
+  .card-box,
+  .article-box {
+    height: 200px;
+    padding: 20px;
+  }
+
+  .card-box.comic-theme .card-user-name,
+  .card.comic-theme .card-user-name,
+  .comic-theme .name {
+    font-size: 36px;
+  }
+
+  .card-box.pink-theme .card-user-name,
+  .card.pink-theme .card-user-name,
+  .pink-theme .name {
+    font-size: 38px;
+  }
+
+  .card-box.pink-theme .card-business-name,
+  .card.pink-theme .card-business-name,
+  .pink-theme .business-name {
+    font-size: 20px;
+  }
+}

@@ -1,0 +1,57 @@
+// Prisma schema for UNICARD project
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String           @id @default(cuid())
+  name         String
+  email        String           @unique
+  passwordHash String
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  profile      UniCardProfile?
+}
+
+enum UsageType {
+  PERSONAL
+  BUSINESS
+}
+
+model UniCardProfile {
+  id               String       @id @default(cuid())
+  userId           String       @unique
+  slug             String       @unique
+  name             String
+  email            String
+  phone            String
+  bio              String?
+  usageType        UsageType
+  businessName     String?
+  designation      String?
+  businessAddress  String?
+  businessCategory String?
+  offlinePresence  Boolean      @default(false)
+  onlinePresence   Boolean      @default(false)
+  website          String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  socials          SocialLink[]
+}
+
+model SocialLink {
+  id        String         @id @default(cuid())
+  profileId String
+  platform  String
+  url       String
+
+  profile   UniCardProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}

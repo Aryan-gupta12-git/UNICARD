@@ -1,0 +1,164 @@
+/* UNICARD Redesigned Benefits Section */
+
+.benefits-section {
+  position: relative;
+  background-color: var(--bg-primary);
+  padding: 100px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.benefits-header {
+  margin-bottom: 60px;
+  max-width: 680px;
+}
+
+.benefits-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(40px, 5vw, 68px);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  margin-top: 12px;
+  margin-bottom: 20px;
+}
+
+.benefits-heading-sub {
+  color: #0284C7;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.benefits-subtext {
+  font-family: var(--font-sans);
+  font-size: 18px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.benefits-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.benefit-card {
+  position: relative;
+  background-color: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 220px;
+  overflow: hidden;
+  z-index: 1;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+
+.benefit-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background-color: rgba(15, 30, 54, 0.03);
+  z-index: -1;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.benefit-card:hover::before {
+  width: 100%;
+}
+
+.benefit-card:hover {
+  border-color: rgba(15, 30, 54, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -8px rgba(15, 30, 54, 0.08);
+}
+
+.benefit-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.benefit-num {
+  font-family: var(--font-mono, monospace);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+}
+
+.benefit-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0F1E36;
+  border: 1px solid var(--border-subtle);
+  transition: all var(--transition-fast);
+}
+
+.benefit-card:hover .benefit-icon-wrapper {
+  background-color: #0F1E36;
+  color: #FFFFFF;
+  border-color: #0F1E36;
+}
+
+.benefit-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.benefit-card-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+.benefit-card-subtitle {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 1024px) {
+  .benefits-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .benefits-section {
+    padding: 60px 0;
+  }
+
+  .benefits-header {
+    margin-bottom: 40px;
+  }
+
+  .benefits-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .benefit-card {
+    min-height: auto;
+    padding: 24px 20px;
+  }
+}
