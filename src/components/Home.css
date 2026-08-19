@@ -144,7 +144,7 @@
   background-repeat: no-repeat;
   overflow: hidden;
   border-color: #111111;
-  box-shadow: 0 8px 24px rgba(17, 17, 17, 0.25);
+  box-shadow: none;
   z-index: 1;
   padding: 20px 24px 2px 24px;
 }
@@ -246,7 +246,7 @@
   background-repeat: no-repeat;
   overflow: hidden;
   border: none;
-  box-shadow: 0 8px 24px rgba(240, 43, 138, 0.25);
+  box-shadow: none;
   padding: 0;
   cursor: pointer;
 }
@@ -438,7 +438,7 @@
   background-repeat: no-repeat;
   overflow: hidden;
   border: none;
-  box-shadow: 0 8px 24px rgba(17, 17, 17, 0.15);
+  box-shadow: none;
   padding: 0;
   cursor: pointer;
 }
@@ -747,7 +747,7 @@
   background-repeat: no-repeat;
   overflow: hidden;
   border: none;
-  box-shadow: 0 8px 24px rgba(17, 17, 17, 0.15);
+  box-shadow: none;
   padding: 0;
   cursor: pointer;
 }
@@ -904,9 +904,50 @@
   background-repeat: no-repeat;
   overflow: hidden;
   border: none;
-  box-shadow: 0 8px 24px rgba(17, 17, 17, 0.15);
+  box-shadow: none;
   padding: 0;
   cursor: pointer;
+}
+
+/* Enforce NO outer glow or shadow on themed cards (resting & hover/focus) */
+.card-box.comic-theme,
+.card-box.pink-pop-theme,
+.card-box.pink-theme,
+.card-box.spider-comic-theme,
+.card-box.uno-theme,
+.card-box.zombie-theme,
+.card.comic-theme,
+.card.pink-pop-theme,
+.card.pink-theme,
+.card.spider-comic-theme,
+.card.uno-theme,
+.card.zombie-theme,
+.card-box[class*="-theme"],
+.card[class*="-theme"] {
+  box-shadow: none !important;
+}
+
+.card-box.comic-theme:hover,
+.card-box.pink-pop-theme:hover,
+.card-box.pink-theme:hover,
+.card-box.spider-comic-theme:hover,
+.card-box.uno-theme:hover,
+.card-box.zombie-theme:hover,
+.card-box.comic-theme:focus,
+.card-box.pink-pop-theme:focus,
+.card-box.pink-theme:focus,
+.card-box.spider-comic-theme:focus,
+.card-box.uno-theme:focus,
+.card-box.zombie-theme:focus,
+.card.comic-theme:hover,
+.card.pink-pop-theme:hover,
+.card.pink-theme:hover,
+.card.spider-comic-theme:hover,
+.card.uno-theme:hover,
+.card.zombie-theme:hover,
+.card-box[class*="-theme"]:hover,
+.card[class*="-theme"]:hover {
+  box-shadow: none !important;
 }
 
 .card-box.zombie-theme .card-box-main,
