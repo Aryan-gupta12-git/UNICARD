@@ -130,7 +130,15 @@ export const Navbar: React.FC<NavbarProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (isLoading) {
+  const isPublicView =
+    activeView === 'landing' ||
+    activeView === 'signin' ||
+    activeView === 'signup' ||
+    activeView === 'forgot-password' ||
+    activeView === 'public-card' ||
+    Boolean(window.location.pathname.match(/^\/(?:c|u)\//));
+
+  if (isLoading && !isPublicView) {
     return (
       <header className="navbar">
         <div className="container navbar-container">

@@ -178,8 +178,7 @@ const MainAppContent: React.FC = () => {
             }
 
             await processPendingSaveCard();
-            const isPublicRoute = view === 'public-card' || Boolean(window.location.pathname.match(/^\/(?:c|u)\//));
-            if (!isPublicRoute && view === 'landing') {
+            if (view === 'landing') {
               setView('home');
             }
           }
@@ -191,7 +190,9 @@ const MainAppContent: React.FC = () => {
       } else {
         setUserProfile(null);
         setIsProfileChecking(false);
-        const isPublicRoute = view === 'public-card' || Boolean(window.location.pathname.match(/^\/(?:c|u)\//));
+        const isPublicRoute =
+          ['landing', 'signin', 'signup', 'forgot-password', 'public-card'].includes(view) ||
+          Boolean(window.location.pathname.match(/^\/(?:c|u)\//));
         if (!isPublicRoute) {
           sessionStorage.removeItem('unicard_active_view');
           if (window.location.pathname !== '/' || window.location.hash) {
@@ -272,7 +273,11 @@ const MainAppContent: React.FC = () => {
     setView('onboarding');
   };
 
-  if (isLoading || (isAuthenticated && isProfileChecking && view !== 'public-card')) {
+  const isPublicView =
+    ['landing', 'signin', 'signup', 'forgot-password', 'public-card'].includes(view) ||
+    Boolean(window.location.pathname.match(/^\/(?:c|u)\//));
+
+  if (!isPublicView && (isLoading || (isAuthenticated && isProfileChecking))) {
     return (
       <div className="app">
         <Navbar
