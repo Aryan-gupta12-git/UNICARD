@@ -89,7 +89,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({
       phone: card.phone || '',
       bio: card.bio || '',
       usageType,
-      theme: card.theme || 'comic-theme',
+      theme: usageType === 'business' ? undefined : (card.theme || 'comic-theme'),
       business: {
         name: card.businessName || '',
         designation: card.designation || card.profession || '',
@@ -155,7 +155,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({
       email: formData.email,
       phone: formData.phone,
       bio: formData.bio,
-      theme: formData.theme || 'comic-theme',
+      theme: formData.usageType === 'business' ? undefined : (formData.theme || 'comic-theme'),
       usageType: formData.usageType,
       profession: formData.business.designation,
       business: formData.business,

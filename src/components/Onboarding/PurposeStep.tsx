@@ -182,8 +182,8 @@ export const PurposeStep: React.FC<PurposeStepProps> = ({ data, updateData, onNe
         </div>
       )}
 
-      {/* Card Theme Selection for Both Personal & Business */}
-      {Boolean(data.usageType) && (
+      {/* Card Theme Selection ONLY for Personal Cards */}
+      {data.usageType === 'personal' && (
         <div className="business-fields-container fade-in-subfields" style={{ marginTop: '20px' }}>
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label className="form-label" style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
